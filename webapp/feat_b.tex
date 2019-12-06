@@ -1,0 +1,105 @@
+%!TEX root = robots_desc.tex
+
+%  _____          _                    _____      _     ____
+% |  ___|__  __ _| |_ _   _ _ __ ___  | ____|_  _| |_  | __ )
+% | |_ / _ \/ _` | __| | | | '__/ _ \ |  _| \ \/ / __| |  _ \
+% |  _|  __/ (_| | |_| |_| | | |  __/ | |___ >  <| |_  | |_) |
+% |_|  \___|\__,_|\__|\__,_|_|  \___| |_____/_/\_\\__| |____/
+%
+
+\setSpacing{1.5}
+\section{Feature Extension: B}
+
+\noindent
+เราจะเพิ่ม Feature ให้แก่ Web Service Application ดังนี้
+\begin{itemize}[topsep=0pc,itemsep=0pc]
+\item  
+    สามารถกำหนดได้ว่าจะใช้ Distance Metric ใดในการวัดระยะห่างระหว่างจุดสองจุดของ Endpoint \npt{POST}{/distance} ได้
+\end{itemize}
+
+\setSpacing{1.5}
+\subsection{Modified Changes}
+
+\begin{itemize}[parsep=0.5pc]
+\item 
+    ผู้เข้าแข่งขันจะต้องแก้ไข Endpoint \npt{POST}{/distance} เพื่อให้รองรับ JSON Field ใหม่ชื่อว่า \lstinline{"metric"} ซึ่งจะเป็นสตริงได้เพียง 2 แบบคือ \lstinline{"euclidean"} (default) หรือ \lstinline{"manhattan"}
+
+    ในกรณีที่เป็นค่าสตริง \lstinline{"manhattan"} ค่าระยะห่างระหว่างจุดสองจุดใน Input Data จะต้องถูกคำนวณเป็น Manhattan Distance แทนที่จะเป็น Euclidean Distance
+\end{itemize}
+
+\noindent
+รายละเอียดเพิ่มเติมสามารถหาอ่านได้จากไฟล์ API Specification ที่แนบมากับเอกสารนี้
+
+\setSpacing{1.5}
+\subsection{Example Requests and Responses}
+
+\noindent
+พิจารณาลำดับของการเรียก API Endpoints ต่อไปนี้
+
+\begin{itemize}
+\item  %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\textbf{Request \#1:}
+\begin{lstlisting}[xleftmargin=1pc,numbers=none]
+POST /distance HTTP/1.1
+Content-Type: application/json
+
+{
+  "first_pos": {"x": 3, "y": -2},
+  "second_pos": {"x": -1, "y": 1}
+}
+\end{lstlisting}
+\textbf{Response \#1:}
+\begin{lstlisting}[xleftmargin=1pc,numbers=none]
+HTTP/1.1 200 OK
+Content-Type: application/json
+
+{
+  "distance": 5.000
+}
+\end{lstlisting}
+
+\item  %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\textbf{Request \#2:}
+\begin{lstlisting}[xleftmargin=1pc,numbers=none]
+POST /distance HTTP/1.1
+Content-Type: application/json
+
+{
+  "first_pos": {"x": 3, "y": -2},
+  "second_pos": {"x": -1, "y": 1},
+  "metric": "manhattan"
+}
+\end{lstlisting}
+\newpage
+\textbf{Response \#2:}
+\begin{lstlisting}[xleftmargin=1pc,numbers=none]
+HTTP/1.1 200 OK
+Content-Type: application/json
+
+{
+  "distance": 7.000
+}
+\end{lstlisting}
+
+\item  %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\textbf{Request \#3:}
+\begin{lstlisting}[xleftmargin=1pc,numbers=none]
+POST /distance HTTP/1.1
+Content-Type: application/json
+
+{
+  "first_pos": {"x": 3, "y": -2},
+  "second_pos": {"x": -1, "y": 1},
+  "metric": "euclidean"
+}
+\end{lstlisting}
+\textbf{Response \#3:}
+\begin{lstlisting}[xleftmargin=1pc,numbers=none]
+HTTP/1.1 200 OK
+Content-Type: application/json
+
+{
+  "distance": 5.000
+}
+\end{lstlisting}
+\end{itemize}

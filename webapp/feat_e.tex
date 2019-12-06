@@ -1,0 +1,120 @@
+%!TEX root = robots_desc.tex
+
+%  _____          _                    _____      _     _____ 
+% |  ___|__  __ _| |_ _   _ _ __ ___  | ____|_  _| |_  | ____|
+% | |_ / _ \/ _` | __| | | | '__/ _ \ |  _| \ \/ / __| |  _|  
+% |  _|  __/ (_| | |_| |_| | | |  __/ | |___ >  <| |_  | |___ 
+% |_|  \___|\__,_|\__|\__,_|_|  \___| |_____/_/\_\\__| |_____|
+%
+
+\setSpacing{1.5}
+\section{Feature Extension: E}
+
+\begin{quote}
+  \footnotesize
+  \textbf{หมายเหตุ:} Web Service Application ของผู้เข้าแข่งขันจำเป็นต้อง Implement Feature Extension A ก่อนจึงจะ Implement Feature ใหม่ต่อไปนี้ได้
+\end{quote}
+
+\noindent
+เราจะเพิ่ม Feature ให้แก่ Web Service Application ดังนี้
+\begin{itemize}[topsep=0pc,itemsep=0pc]
+\item 
+    Operator ที่เป็นมนุษย์สามารถ Query เพื่อสอบถามว่า Robot สองตัวที่อยู่ใกล้กันมากที่สุด ณ เวลาปัจจุบันนั้นมีระยะห่างกันเท่าใด (ภายใต้ Euclidean Distance Metric)
+\end{itemize}
+
+\setSpacing{1.5}
+\subsection{API Endpoints}
+
+\noindent
+สำหรับ Feature Extension นี้จะต้อง Implement HTTP Endpoint เพิ่มเติมอีก 1 จุดคือ
+
+\begin{description}[parsep=0.5pc]
+\item[\npt{GET}{/closestpair}] ~ \\
+    Query เพื่อให้ Web Service ค้นหาระยะห่างระหว่าง Robot คู่ใด ๆ ที่มีค่าน้อยที่สุด
+    โดยอ้างอิงข้อมูลตำแหน่งของ Robot ที่อัปเดตล่าสุด
+
+    Response Object จะมี JSON Field เดียวคือ \lstinline{"distance"} ซึ่งระบุค่าระยะห่างที่น้อยที่สุดระหว่าง Robot คู่ใด ๆ
+\end{description}
+
+\noindent        
+รายละเอียดเพิ่มเติมสามารถหาอ่านได้จากไฟล์ API Specification ที่แนบมากับเอกสารนี้
+
+\setSpacing{1.5}
+\subsection{Example Requests and Responses}
+
+\noindent
+พิจารณาลำดับของการเรียก API Endpoints ต่อไปนี้
+
+\begin{itemize}
+\item  %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\textbf{Request \#1:}
+\begin{lstlisting}[xleftmargin=1pc,numbers=none]
+PUT /robot/1/position HTTP/1.1
+Content-Type: application/json
+
+{
+  "position": {"x": -1, "y": 1}
+}
+\end{lstlisting}
+\textbf{Response \#1:}
+\begin{lstlisting}[xleftmargin=1pc,numbers=none]
+HTTP/1.1 204 No Content
+\end{lstlisting}
+
+\item  %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\textbf{Request \#2:}
+\begin{lstlisting}[xleftmargin=1pc,numbers=none]
+GET /closestpair HTTP/1.1
+\end{lstlisting}
+\newpage
+\textbf{Response \#2:}
+\begin{lstlisting}[xleftmargin=1pc,numbers=none]
+HTTP/1.1 424 Failed Dependency
+\end{lstlisting}
+
+\item  %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\textbf{Request \#3:}
+\begin{lstlisting}[xleftmargin=1pc,numbers=none]
+PUT /robot/2/position HTTP/1.1
+Content-Type: application/json
+
+{
+  "position": {"x": 3, "y": -3}
+}
+\end{lstlisting}
+\textbf{Response \#3:}
+\begin{lstlisting}[xleftmargin=1pc,numbers=none]
+HTTP/1.1 204 No Content
+\end{lstlisting}
+
+\item  %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\textbf{Request \#4:}
+\begin{lstlisting}[xleftmargin=1pc,numbers=none]
+PUT /robot/4/position HTTP/1.1
+Content-Type: application/json
+
+{
+  "position": {"x": 5, "y": -2}
+}
+\end{lstlisting}
+\textbf{Response \#4:}
+\begin{lstlisting}[xleftmargin=1pc,numbers=none]
+HTTP/1.1 204 No Content
+\end{lstlisting}
+
+\item  %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\textbf{Request \#5:}
+\begin{lstlisting}[xleftmargin=1pc,numbers=none]
+GET /closestpair HTTP/1.1
+\end{lstlisting}
+\textbf{Response \#5:}
+\begin{lstlisting}[xleftmargin=1pc,numbers=none]
+HTTP/1.1 200 OK
+Content-Type: application/json
+
+{
+  "distance": 2.236
+}
+\end{lstlisting}
+
+\end{itemize}

@@ -1,0 +1,176 @@
+%!TEX root = robots_desc.tex
+
+%  _____          _                    _____      _     ____
+% |  ___|__  __ _| |_ _   _ _ __ ___  | ____|_  _| |_  |  _ \
+% | |_ / _ \/ _` | __| | | | '__/ _ \ |  _| \ \/ / __| | | | |
+% |  _|  __/ (_| | |_| |_| | | |  __/ | |___ >  <| |_  | |_| |
+% |_|  \___|\__,_|\__|\__,_|_|  \___| |_____/_/\_\\__| |____/
+%
+
+\setSpacing{1.5}
+\section{Feature Extension: D}
+
+\begin{quote}
+  \footnotesize
+  \textbf{หมายเหตุ:} Web Service Application ของผู้เข้าแข่งขันจำเป็นต้อง Implement Feature Extension A ก่อนจึงจะ Implement Feature ใหม่ต่อไปนี้ได้
+\end{quote}
+
+\noindent
+เราจะเพิ่ม Feature ให้แก่ Web Service Application ดังนี้
+\begin{itemize}[topsep=0pc,itemsep=0pc]
+\item  
+    เมื่อ Robot ใช้คลื่นเรดาร์ตรวจพบวัตถุต่างดาวพบ (เช่น เศษของสะเก็ดดาวตก) แล้ว Robot ดังกล่าวจะสามารถรายงานข้อมูลดังกล่าวมายัง Web Service กลางได้ \;
+    ข้อมูลดังกล่าวจะประกอบไปด้วย Object DNA (ซึ่งเป็นสตริงที่ประกอบไปด้วย \lstinline{'a'}–\lstinline{'z'} ความยาว 16 อักษร และสามารถ Uniquely Identify วัตถุที่เป็น Alien Object ได้) และข้อมูลระยะห่างระหว่าง Robot ที่ทำการสำรวจและวัตถุดังกล่าว (ภายใต้ Euclidean Distance Metric)
+\item 
+    Operator ที่เป็นมนุษย์สามารถ Query เพื่อสอบถามว่าวัตถุต่างดาวหนึ่ง ๆ น่าจะอยู่ในตำแหน่งใดพื้นที่ โดยอาศัยข้อมูลเรดาร์ที่ Robot รายงานเข้ามา \; โดยให้ตอบค่าพิกัดเป็นเศษเป็นจำนวนเต็ม $(x, y) \in \mathbb{Z}^2$
+\end{itemize}
+
+\setSpacing{1.5}
+\subsection{API Endpoints}
+
+\noindent
+สำหรับ Feature Extension นี้จะต้อง Implement HTTP Endpoint เพิ่มเติมอีก 2 จุดคือ
+
+\begin{description}[parsep=0.5pc]
+\item[\npt{POST}{/alien/\{object\_dna\}/report}] ~ \\
+    Update ข้อมูลการใช้คลื่นเรดาร์กับวัตถุต่างดาว \;
+    โดย Path Parameter \lstinline{object_dna} จะระบุ Object DNA ของวัตถุต่างดาวดังกล่าว และข้อมูลจาก JSON Field \lstinline{"robot_id"} จะระบุ ID ของ Robot ที่กำลังรายงานผล และ JSON Field \lstinline{"distance"} จะระบุระยะห่างระหว่าง Robot และวัตถุต่างดาวดังกล่าว
+\item[\npt{GET}{/alien/\{object\_dna\}/position}] ~ \\
+    Query เพื่อให้ Web Service กลางช่วยคำนวณหาตำแหน่งที่ถูกต้องแน่นอนของวัตถุต่างดาวที่กำหนดให้ \; 
+    โดย Path Parameter \lstinline{object_dna} จะระบุ Object DNA ของวัตถุต่างดาวข้างต้น
+
+    หากสามารถคำนวณตำแหน่งของวัตถุต่างดาวได้อย่างเจาะจง จะต้องคืน Status 200 OK พร้อมกับ Response Object ที่มี JSON Field \lstinline{"position"} ที่ระบุตำแหน่งของวัตถุต่างดาวที่คำนวณได้ \;
+    หากข้อมูลที่มีอยู่ไม่เพียงพอที่จะคำนวณตำแหน่งที่แน่นอนได้ในเชิงเรขาคณิต จะต้องคืน Status 424 Failed Dependency แทน
+\end{description}
+
+\noindent        
+รายละเอียดเพิ่มเติมสามารถหาอ่านได้จากไฟล์ API Specification ที่แนบมากับเอกสารนี้
+
+\setSpacing{1.5}
+\subsection{Example Requests and Responses}
+
+\noindent
+พิจารณาลำดับของการเรียก API Endpoints ต่อไปนี้
+
+\newpage
+\begin{itemize}
+\item  %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\textbf{Request \#1:}
+\begin{lstlisting}[xleftmargin=1pc,numbers=none]
+PUT /robot/1/position HTTP/1.1
+Content-Type: application/json
+
+{
+  "position": {"x": 0, "y": 0}
+}
+\end{lstlisting}
+\textbf{Response \#1:}
+\begin{lstlisting}[xleftmargin=1pc,numbers=none]
+HTTP/1.1 204 No Content
+\end{lstlisting}
+
+\item  %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\textbf{Request \#2:}
+\begin{lstlisting}[xleftmargin=1pc,numbers=none]
+POST /alien/abcdefghijklmnop/report HTTP/1.1
+Content-Type: application/json
+
+{
+  "robot_id": 1,
+  "distance": 3.162
+}
+\end{lstlisting}
+\textbf{Response \#2:}
+\begin{lstlisting}[xleftmargin=1pc,numbers=none]
+HTTP/1.1 200 OK
+\end{lstlisting}
+
+\item  %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\textbf{Request \#3:}
+\begin{lstlisting}[xleftmargin=1pc,numbers=none]
+PUT /robot/1/position HTTP/1.1
+Content-Type: application/json
+
+{
+  "position": {"x": 5, "y": -2}
+}
+\end{lstlisting}
+\textbf{Response \#3:}
+\begin{lstlisting}[xleftmargin=1pc,numbers=none]
+HTTP/1.1 204 No Content
+\end{lstlisting}
+
+\item  %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\textbf{Request \#4:}
+\begin{lstlisting}[xleftmargin=1pc,numbers=none]
+POST /alien/abcdefghijklmnop/report HTTP/1.1
+Content-Type: application/json
+
+{
+  "robot_id": 1,
+  "distance": 2.236
+}
+\end{lstlisting}
+\textbf{Response \#4:}
+\begin{lstlisting}[xleftmargin=1pc,numbers=none]
+HTTP/1.1 200 OK
+\end{lstlisting}
+
+\newpage
+\item  %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\textbf{Request \#5:}
+\begin{lstlisting}[xleftmargin=1pc,numbers=none]
+GET /alien/abcdefghijklmnop/position HTTP/1.1
+\end{lstlisting}
+\textbf{Response \#5:}
+\begin{lstlisting}[xleftmargin=1pc,numbers=none]
+HTTP/1.1 424 Failed Dependency
+\end{lstlisting}
+
+\item  %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\textbf{Request \#6:}
+\begin{lstlisting}[xleftmargin=1pc,numbers=none]
+PUT /robot/2/position HTTP/1.1
+Content-Type: application/json
+
+{
+  "position": {"x": 3, "y": -3}
+}
+\end{lstlisting}
+\textbf{Response \#6:}
+\begin{lstlisting}[xleftmargin=1pc,numbers=none]
+HTTP/1.1 204 No Content
+\end{lstlisting}
+
+\item  %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\textbf{Request \#7:}
+\begin{lstlisting}[xleftmargin=1pc,numbers=none]
+POST /alien/abcdefghijklmnop/report HTTP/1.1
+Content-Type: application/json
+
+{
+  "robot_id": 2,
+  "distance": 2.000
+}
+\end{lstlisting}
+\textbf{Response \#7:}
+\begin{lstlisting}[xleftmargin=1pc,numbers=none]
+HTTP/1.1 200 OK
+\end{lstlisting}
+
+\item  %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\textbf{Request \#8:}
+\begin{lstlisting}[xleftmargin=1pc,numbers=none]
+GET /alien/abcdefghijklmnop/position HTTP/1.1
+\end{lstlisting}
+\textbf{Response \#8:}
+\begin{lstlisting}[xleftmargin=1pc,numbers=none]
+HTTP/1.1 200 OK
+Content-Type: application/json
+
+{
+  "position": {"x": 3, "y": -1}
+}
+\end{lstlisting}
+
+\end{itemize}

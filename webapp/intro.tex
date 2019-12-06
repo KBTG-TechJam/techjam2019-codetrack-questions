@@ -1,0 +1,142 @@
+%!TEX root = robots_desc.tex
+
+%  _____         _      ____                      _       _   _
+% |_   _|_ _ ___| | __ |  _ \  ___  ___  ___ _ __(_)_ __ | |_(_) ___  _ __
+%   | |/ _` / __| |/ / | | | |/ _ \/ __|/ __| '__| | '_ \| __| |/ _ \| '_ \
+%   | | (_| \__ \   <  | |_| |  __/\__ \ (__| |  | | |_) | |_| | (_) | | | |
+%   |_|\__,_|___/_|\_\ |____/ \___||___/\___|_|  |_| .__/ \__|_|\___/|_| |_|
+%                                                  |_|
+
+\setSpacing{1.5}
+\section{Task Description}
+
+สำหรับโจทย์ในข้อนี้ ผู้เข้าแข่งขันจะต้องเขียน Web Service Application ขึ้นมา 1 ตัวเพื่ออำนวยความสะดวกแก่ Robot หลายตัวที่ถูกปล่อยให้ไปสำรวจพื้นที่สองมิติในบริเวณที่เพิ่งมีสะเก็ดดาวตกพุ่งลงสู่ผิวโลก \;
+กล่าวคือ Robot แต่ละตัว (ซึ่งอยู่เหนือการควบคุมของ Web Service กลาง) จะคอยส่งข้อมูลเกี่ยวกับตนเองหรือสิ่งที่ตนเองสำรวจพบมาอัปเดตแก่ Web Service นี้ หรืออาจจะส่ง Query บางอย่างมาให้ Web Service กลางช่วยคำนวณให้ โดยการสื่อสารจะเป็นไปตาม API Specification ที่ถูกกำหนดให้ \;
+
+Application ของผู้เข้าแข่งขันจะต้องถูกบรรจุเป็น Docker Image เพื่อความสะดวกในการทดสอบความถูกต้องและนำไป Deploy ได้อย่างสะดวกรวดเร็วต่อไปนี้
+
+ผู้เข้าแข่งขันสามารถอ่าน Requirement ของ Web Service Application ได้จากเอกสารฉบับนี้ และสามารถอ่าน API Specification เพิ่มเติมได้จากไฟล์ \verb'api_spec_v1_0.html' ที่แนบมากับเอกสารนี้
+
+
+\setSpacing{1.5}
+\subsection{Real World Simulation}
+
+เพื่อจำลองสถานการณ์จริงในการทำงานในโลกจริง ในระหว่างการแข่งขันนี้อาจมีการขอแก้ไข Requirement ของโจทย์เพิ่มเติม ซึ่งส่วนมากจะมาในรูปแบบของ Feature Request เพิ่มเติมจากของเก่า \;
+ผู้เข้าแข่งขันที่สามารถ Implement Feature เหล่านี้ได้และทำงานได้อย่างถูกต้อง ก็จะได้คะแนนเพิ่มเติมในส่วนนั้นไป
+
+การขอแก้ไข Requirement อาจเกิดขึ้นได้มากกว่า 1 ครั้งตลอดการแข่งขัน และในแต่ละครั้ง เอกสารฉบับนี้ก็จะถูกเพิ่มเติมแก้ไขพร้อม ๆ กับไฟล์ API Specification \;
+ผู้เข้าแข่งขันสามารถเลือกได้จะว่า Implement หรือไม่ Implement Feature ใหม่ ๆ ที่เกิดจากการขอแก้ไข Requirement ในครั้งต่าง ๆ ได้
+
+ผู้เข้าแข่งขันที่เขียนโปรแกรมให้ทำงานได้อย่างถูกต้อง และมีทักษะในการพัฒนาซอฟต์แวร์ที่ดีเท่านั้น (ซึ่งรวมไปถึงการเขียนโค้ดที่ Maintainable และ Extensible ได้) จะสามารถอยู่รอดในการจำลองสถานการณ์จริงได้
+
+%   ____            _            _     ____        _
+%  / ___|___  _ __ | |_ ___  ___| |_  |  _ \ _   _| | ___  ___
+% | |   / _ \| '_ \| __/ _ \/ __| __| | |_) | | | | |/ _ \/ __|
+% | |__| (_) | | | | ||  __/\__ \ |_  |  _ <| |_| | |  __/\__ \
+%  \____\___/|_| |_|\__\___||___/\__| |_| \_\\__,_|_|\___||___/
+%
+%                  _   ____           _        _      _   _
+%   __ _ _ __   __| | |  _ \ ___  ___| |_ _ __(_) ___| |_(_) ___  _ __  ___
+%  / _` | '_ \ / _` | | |_) / _ \/ __| __| '__| |/ __| __| |/ _ \| '_ \/ __|
+% | (_| | | | | (_| | |  _ <  __/\__ \ |_| |  | | (__| |_| | (_) | | | \__ \
+%  \__,_|_| |_|\__,_| |_| \_\___||___/\__|_|  |_|\___|\__|_|\___/|_| |_|___/
+%
+
+
+\setSpacing{1.5}
+\section{Contest Rules and Restrictions}
+
+\setSpacing{1.5}
+\subsection{Source Code}
+
+\begin{itemize}
+    \item
+        Source Code และ Scripts ทั้งหมดที่ใช้งานจะต้องเป็นผลงานที่ผู้เข้าแข่งขันเขียนขึ้นเอง หรือเป็นผลงานที่เป็น Free and Open-Sourced Software และไม่มีข้อต้องห้ามหรืออุปสรรคที่ทำให้บุคคลสาธารณะไม่สามารถเข้าถึงเทคโนโลยีดังกล่าว เท่านั้น
+    \item
+        ในการพัฒนา Application นี้ ผู้เข้าแข่งขันควรมีทักษะในการใช้ Git เพื่อทำ Source Code Versioning
+
+        ก่อนหมดเวลาแข่งขัน ผู้เข้าแข่งขันจะต้องนำ Source Code ทั้งหมดที่จำเป็นในการสร้าง Docker Image ขึ้นสู่ GitHub, BitBucket, หรือ GitLab Account ของตนเอง \;
+        ผู้เข้าแข่งขันสามารถเลือก Commit ที่ถูกนำขึ้น Platform ข้างต้นก่อนหมดเวลาการแข่งขันลง Commit ใดก็ได้ ให้คณะกรรมการพิจารณาตรวจให้คะแนน
+
+        \begin{itemize}[topsep=0pc,itemsep=0pc]
+            \item
+                \textbf{คำแนะนำ:} ผู้เข้าแข่งขันอาจจะสร้าง Private Repository ในตอนต้นและใช้งานในลักษณะนี้ระหว่างการแข่งขัน และก่อนหมดเวลาจึงแก้ไข Permission ให้เป็น Public Repository
+            \item
+                \textbf{คะแนนโบนัส:} หากผู้เข้าแข่งขันเลือกปล่อยผลงาน Application นี้ด้วย Open Source Software License ที่เป็น {GPL-Compatible License} จะได้คะแนนเพิ่ม 10 ปิ๊บแต้ม
+
+                {\footnotesize\vphantom{1}\llap{*\hrsp}ดูเพิ่มเติมที่ \url{https://www.gnu.org/licenses/license-list.en.html#GPLCompatibleLicenses}}
+        \end{itemize}
+
+\end{itemize}
+
+\setSpacing{1.5}
+\subsection{Building and Running Docker}
+
+\begin{itemize}
+    \item
+        Source Code ทั้งหมดที่จำเป็นในการสร้าง Docker Image จะต้องถูกทำ Commit เข้า Git Repository \;
+        ส่วนไฟล์ \verb'Dockerfile' จะต้องอยู่ใน Root Directory ของ Git Repository เท่านั้น
+    \item
+        Source Code ทั้งหมดจะต้องสามารถนำมา Build เป็น Docker Image ได้โดยไม่จำเป็นต้องกำหนด Build Options ใด ๆ เพิ่มเติม \;
+        %เราจะใช้ Docker Engine {\color{red} เวอร์ชัน XXX} เพื่อ Build Docker Image
+    \item
+        Base Docker Image ที่อนุญาตให้ใช้ในการแข่งขัน มีดังต่อไปนี้
+        \begin{itemize}[topsep=0pc,itemsep=0pc]
+            \item \verb'gcc:8.3', \verb'gcc:9.2'
+            \item \verb'golang:1.12-buster', \verb'golang:1.13-buster'
+            \item \verb'node:8.16-buster', \verb'node:10.17-buster', \verb'node:12.13-buster'
+            \item \verb'openjdk:8-stretch', \verb'openjdk:11-stretch', \verb'openjdk:14-buster'
+            \item \verb'python:3.7-buster', \verb'python:3.8-buster'
+            \item \verb'kernelci/build-clang-9:latest'
+            \item \verb'ubuntu:18.04'
+        \end{itemize}
+    \item
+        ในระหว่างการ Build Docker Image อนุญาตให้ดาวน์โหลดและติดตั้ง External Package ต่าง ๆ จาก Repository มาตรฐานของภาษานั้น ๆ โดยใช้ Packaging Manager ได้ แต่ไม่อนุญาตให้ดาวน์โหลดหรือติดตั้งสิ่งอื่นใดนอกเหนือจากนั้น
+        \begin{itemize}[topsep=0pc,itemsep=0pc]
+            \item
+                สำหรับภาษา Go อนุญาตให้ติดตั้ง Package ที่มีข้อมูลปรากฏในเว็บไซต์ \\
+                \url{https://pkg.go.dev/} ได้
+            \item
+                สำหรับภาษา JavaScript อนุญาตให้ติดตั้ง Package จาก Public NPM Registry ได้ \\
+                (ตามที่ปรากฏใน \url{https://npmjs.com})
+            \item
+                สำหรับภาษา Python อนุญาตให้ติดตั้ง Package จาก The Python Package Index ได้ \\
+                (ตามที่ปรากฏใน \url{https://pypi.org})
+            \item
+                หากต้องการใช้ Package สำหรับภาษาอื่น ๆ กรุณาสอบถามคณะกรรมการเป็นรายกรณี
+        \end{itemize}
+        Package ที่ถูกติดตั้งข้างต้นจะต้องเป็น Free and Open-Sourced Software และไม่มีข้อต้องห้ามหรืออุปสรรคที่ทำให้บุคคลสาธารณะไม่สามารถเข้าถึงเทคโนโลยีดังกล่าว เท่านั้น
+    \item
+        เมื่อ Docker Image ถูกนำมาสร้าง Container จะมีการกำหนด Environment Variables ตามที่ระบุไว้ใน Feature ต่าง ๆ ที่อยู่ในเอกสารฉบับนี้ \;
+        นอกเหนือจากนี้จะ\uline{ไม่มี}การกำหนด Commands, Entrypoints, Network Settings, Restart Policies, Mounted Volumes และ Working Directory ใด ๆ เพิ่มเติม
+        \newpage
+        \begin{itemize}[topsep=0pc,itemsep=0pc]
+            \item
+                \textbf{คำแนะนำ:} ผู้แข่งขันควรกำหนดค่า Default ของ \verb'CMD', \verb'ENTRYPOINT', \verb'EXPOSE', \verb'USER', \verb'WORKDIR' ของ \verb'Dockerfile' ด้วยตนเอง
+            \item
+                \textbf{หมายเหตุ:} เนื่องจาก Docker Container จะถูกสร้างจาก Docker Image โดยไม่มีการกำหนด Command ดังนั้นแล้ว Docker Container จะรัน Command ตามค่า Default ที่ถูกกำหนดโดย \verb'CMD' ดังที่กล่าวไว้ข้างต้น
+        \end{itemize}
+\end{itemize}
+
+\setSpacing{1.5}
+\subsection{Web Service Application}
+
+\begin{itemize}
+    \item
+        Web Service Application ที่เขียนขึ้นจะต้องเปิดฟัง Port หมายเลข \verb'8000' (TCP) เพื่อรอรับและตอบสนองต่อ Request ที่ถูกส่งมาจากฝั่ง Client \;
+        (ผู้แข่งขันสามารถกำหนดให้ Port \verb'8000' เป็นค่าหนึ่งของ \verb'EXPOSE' ใน \verb'Dockerfile' ได้)
+    \item
+        Web Service Application ที่เขียนขึ้นควรจะสามารถ Handle ในกรณีที่ Request มีรูปแบบของข้อมูลที่ไม่ถูกต้องได้ โดยสามารถรีเทิร์น Response ด้วยสเตตัส 400 Bad Request
+    \item
+        เพื่ออำนวยความสะดวกแก่ผู้เข้าแข่งขัน เราจะรับประกันดังต่อไปนี้
+        \begin{itemize}[topsep=0pc,itemsep=0pc]
+            \item
+                ทีมงานจะไม่ Monitor ผลลัพธ์ที่ถูกปล่อยออกมาผ่าน Standard Output หรือ Standard Error ของ Docker Container แต่อย่างใด ซึ่งผู้เข้าแข่งขันสามารถใช้ช่องทางดังกล่าวสำหรับ Debugging ได้
+            \item
+                ทีมงานรับประกันว่าในระหว่างการแข่งขันจะไม่มีการประกาศ Endpoint ใดใน API Specification ที่มี Path ขึ้นต้นด้วย \textbf{\texttt{/private}} ซึ่งผู้เข้าแข่งขันสามารถสร้าง Endpoint ภายใต้ Path นี้เพิ่มเติมเพื่อใช้สำหรับ Debugging ได้เช่นกัน \;
+                (ยกตัวอย่างเช่น ผู้แข่งขันอาจกำหนด Endpoint \textbf{GET \texttt{/private/ping}} สำหรับทดสอบ Connection ก็ได้)
+            \item
+                ทีมงานรับประกันว่าในระหว่างการแข่งขันจะไม่มีการประกาศ Environment Variable ใดที่ขึ้นด้วยด้วยคำว่า \textbf{\texttt{PRIVATE\_}} ซึ่งผู้เข้าแข่งขันสามารถใช้ประกาศ Environment Variable เพิ่มเติมเพื่อใช้สำหรับทำ Testing ได้ \;
+                แต่พึงระวังว่าในขั้นตอนการตรวจสอบและให้คะแนนโปรแกรม จะ\uline{ไม่มี}การป้อนค่าใด ๆ ให้แก่ Environment Variable ในกลุ่มนี้เช่นกัน
+        \end{itemize}
+\end{itemize}

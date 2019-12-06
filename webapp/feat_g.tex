@@ -1,0 +1,88 @@
+%!TEX root = robots_desc.tex
+
+%  _____          _                    _____      _      ____ 
+% |  ___|__  __ _| |_ _   _ _ __ ___  | ____|_  _| |_   / ___|
+% | |_ / _ \/ _` | __| | | | '__/ _ \ |  _| \ \/ / __| | |  _ 
+% |  _|  __/ (_| | |_| |_| | | |  __/ | |___ >  <| |_  | |_| |
+% |_|  \___|\__,_|\__|\__,_|_|  \___| |_____/_/\_\\__|  \____|
+%  
+
+\setSpacing{1.5}
+\section{Feature Extension: G}
+
+\begin{quote}
+  \footnotesize
+  \textbf{หมายเหตุ:} Web Service Application ของผู้เข้าแข่งขันจำเป็นต้อง Implement Feature Extension A ก่อนจึงจะ Implement Feature ใหม่ต่อไปนี้ได้
+\end{quote}
+
+\noindent
+เราจะเพิ่ม Feature ให้แก่ Web Service Application ดังนี้
+\begin{itemize}[topsep=0pc,itemsep=0pc,parsep=0.5pc]
+\item 
+    เนื่องจาก Robot บางตัวเป็นรุ่นเก่า ซึ่งทำงานตาม Legacy API Specification เราจึงจำเป็นต้องแก้ไข Endpoint 2 อัน (ได้แก่ \npt{POST}{/distance} และ \npt{PUT}{/robot/\{robot\_id\}/position})  ให้รองรับค่าพิกัด $(x,y) \in \mathbb{Z}^2$ ที่เป็น \hrsp“Legacy Format X”{\hrsp} ได้อีกด้วย
+
+    กล่าวคือจากเดิมที่ค่าพิกัดจะระบุด้วย Object ที่ประกอบไปด้วย 2 Subfield \lstinline{"x"} และ \lstinline{"y"} \; 
+    ใน Legacy Format X นี้จะใช้ Subfield \lstinline{"east"} หรือ \lstinline{"west"} แทนค่าพิกัด \lstinline{"x"} เดิม (ในทิศบวกและลบตามลำดับ) \; 
+    และจะใช้ Subfield \lstinline{"north"} ละ \lstinline{"south"} แทนค่าพิกัด \lstinline{"y"} เดิม (ในทิศบวกและลบตามลำดับ)
+
+    ยกตัวอย่างเช่น \lstinline'{"x": 0, "y": -1}' สามารถเขียนเป็น \lstinline'{"south": 1, "east": 0}' แทนได้ หรือ \lstinline'{"x": -2, "y": 3}' สามารถเขียนเป็น \lstinline'{"north": 3, "west": 2}' แทนได้ เป็นต้น
+\end{itemize}
+
+\setSpacing{1.5}
+\subsection{Modified Changes}
+
+\begin{itemize}[parsep=0.5pc]
+\item 
+    ผู้เข้าแข่งขันจะต้องแก้ไข Endpoint \npt{POST}{/distance} เพื่อให้ JSON Field \lstinline{"first_pos"} และ \\\lstinline{"second_pos"} ของ Request Object สามารถรองรับพิกัดแบบ Legacy Format X ที่ระบุข้างต้นได้
+\item 
+    ผู้เข้าแข่งขันจะต้องแก้ไข Endpoint \npt{PUT}{/robot/\{robot\_id\}/position} เพื่อให้ JSON Field \\\lstinline{"position"} ของ Request Object สามารถรองรับพิกัดแบบ Legacy Format X ที่ระบุข้างต้นได้
+\end{itemize}
+
+\noindent
+รายละเอียดเพิ่มเติมสามารถหาอ่านได้จากไฟล์ API Specification ที่แนบมากับเอกสารนี้
+
+\setSpacing{1.5}
+\subsection{Example Requests and Responses}
+
+\noindent
+พิจารณาลำดับของการเรียก API Endpoints ต่อไปนี้
+
+\begin{itemize}
+\item  %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\textbf{Request \#1:}
+\begin{lstlisting}[xleftmargin=1pc,numbers=none]
+POST /distance HTTP/1.1
+Content-Type: application/json
+
+{
+  "first_pos": {"south": 2, "east": 3},
+  "second_pos": {"north": 1, "west": 1}
+}
+\end{lstlisting}
+\newpage
+\textbf{Response \#1:}
+\begin{lstlisting}[xleftmargin=1pc,numbers=none]
+HTTP/1.1 200 OK
+Content-Type: application/json
+
+{
+  "distance": 5
+}
+\end{lstlisting}
+
+\item  %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\textbf{Request \#2:}
+\begin{lstlisting}[xleftmargin=1pc,numbers=none]
+PUT /robot/1/position HTTP/1.1
+Content-Type: application/json
+
+{
+  "position": {"east": 3, "south": 4}
+}
+\end{lstlisting}
+\textbf{Response \#2:}
+\begin{lstlisting}[xleftmargin=1pc,numbers=none]
+HTTP/1.1 204 No Content
+\end{lstlisting}
+
+\end{itemize}

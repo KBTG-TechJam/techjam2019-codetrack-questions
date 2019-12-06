@@ -1,0 +1,108 @@
+%!TEX root = book.tex
+\section{Protein Synthesis}
+
+\setSpacing{1.5}
+\subsection{Problem Statement}
+
+ณ ศูนย์วิจัยทางวิทยาศาสตร์ชีวโมเลกุลแห่งหนึ่ง มีนักวิจัยที่กำลังทำวิจัยเรื่องสมบัติของ Mixture (สารผสม) ของสาย Polypeptide หลากหลายประเภท \;
+โดยปกติแล้วสาย Polypeptide จะประกอบไปด้วยกรดอะมิโนอย่างน้อย 1 ตัวถูกจับมาเรียงตัวกันเป็นเส้นตรงผ่านพันธะเอไมด์ (Amide Bond) \;
+แต่สำหรับโจทย์ในข้อนี้ เราจะสนใจกรดอะมิโนเพียงสองชนิด ได้แก่ Serine (\lstinline{'S'}) และ Threonine (\lstinline{'T'}) 
+
+ในการเตรียมสารนี้ นักวิจัยต้องการให้สารดังกล่าวเป็น Mixture ของสาย Polypeptide ทั้งหมด \lstinline{n} ชนิด \;
+โดยสาย Polypeptide สองประเภทใด ๆ ไม่ควรเป็น Prefix ต่อกันและกัน (เพราะความคล้ายคลึงกันของสาย Polypeptide แบบดังกล่าวอาจจะทำให้การวัดอ่านค่าในการทดลองมีความสับสนได้) เช่น
+
+\begin{itemize}
+\item  สาย Polypeptide \lstinline{A = "STSST"} และ \lstinline{B = "STS"} ไม่ควรนำมาผสมกันใน Mixture เพราะ \lstinline{B} เป็น Prefix ของ \lstinline{A}
+\item  สาย Polypeptide \lstinline{A = "TTS"} และ \lstinline{B = "TSSTTS"} สามารถนำมาผสมอยู่ใน Mixture เดียวกันได้เพราะไม่มีสาย Polypeptide ใดที่เป็น Prefix ของ Polypeptide อีกสายหนึ่ง
+\end{itemize}
+
+การสังเคราะห์สาย Polypeptide แต่ละประเภทจะมีต้นทุนที่ต่างกัน \;
+กล่าวคือในการสร้างสาย Polypeptide หนึ่งจะต้องใช้ต้นทุน \lstinline{Cs} หน่วยต่อ Serine หนึ่งตัวที่ปรากฏในสาย Polypeptide ดังกล่าว และจะต้องใช้ต้นทุนอีก \lstinline{Ct} หน่วยต่อ Threonine หนึ่งตัวที่ปรากฏในสาย Polypeptide ดังกล่าว \;
+เช่น การสร้างสาย Polypeptide \lstinline{"STTSSTT"} จะมีต้นทุนเท่ากับ $3 \text{\lstinline{Cs}} + 4 \text{\lstinline{Ct}}$ หน่วย
+
+อยากทราบว่าเราจะสามารถสังเคราะห์สาย Polypeptide ทั้งหมด \lstinline{n} ชนิดจากกรดอะมิโนสองชนิดข้างต้น โดยที่ไม่มีสาย Polypeptide สองประเภทใด ๆ ที่เป็น Prefix ต่อกันและกัน เพื่อมาผสมกันเป็น Mixture ที่ต้องการ โดยใช้ต้นทุนเป็นมูลค่าต่ำที่สุดเท่าใด
+
+
+\setSpacing{1.5}
+\subsection{Objectives}
+
+\noindent
+จงเขียนโปรแกรมเพื่อรับ Input Data ดังต่อไปนี้
+\begin{itemize}
+\item
+    จำนวนสาย Polypeptide \lstinline{n} ประเภทที่ต้องการสังเคราะห์ (โดยที่ \lstinline{1 ≤ n ≤ 100,000,000})
+\item 
+    ราคาของกรดอะมิโนต่อตัวสำหรับ Serine (\lstinline{Cs}) และ Threonine (\lstinline{Ct}) \\
+    (โดยที่ \lstinline{0 ≤ Cs, Ct ≤ 100,000})
+\end{itemize}
+
+\noindent
+แล้วจึงคำนวณหา\uline{ต้นทุนที่ต่ำที่สุด}สำหรับสร้างสาย Polypeptide ทั้งหมด \lstinline{n} ประเภทที่ไม่เป็น Prefix ต่อกันและกัน ตามราคาของกรดอะมิโนที่กำหนดเพื่อผสมเป็น Mixture
+
+
+\newpage
+\setSpacing{1.5}
+\subsection{Interfaces and Data Format}
+
+\noindent
+โปรแกรมที่เขียนขึ้นจะต้องรับ Input Data ผ่าน Standard Input ซึ่งมีรูปแบบดังต่อไปนี้
+
+\begin{itemize}
+    \item
+        บรรทัดเดียวมีจำนวนเต็มสามจำนวนคือ \lstinline{n} \lstinline{Cs} และ \lstinline{Ct} คั่นด้วยช่องว่าง
+\end{itemize}
+
+\begin{lstlisting}[aboveskip=1pc,xleftmargin=6pc]
+n Cs Ct
+\end{lstlisting}
+
+โปรแกรมที่เขียนขึ้นจะต้องคืน Output Data ผ่าน Standard Output ซึ่งเป็นมูลค่าที่ตำที่สุดที่สามารถใช้ผสม Mixture ตามที่กำหนดใน Objectives ข้างต้น
+
+\begin{center}
+\smallskip\small
+\begin{tabular}{p{0.425\linewidth}p{0.425\linewidth}}
+\toprule
+Example Input & Example Output \\
+\midrule
+\ttfamily\setSpacing{1}
+4 1 2 &
+\ttfamily\setSpacing{1}
+12 \\
+\bottomrule
+\end{tabular}
+\end{center}
+
+\medskip
+\textbf{หมายเหตุ:} ในตัวอย่างข้างต้น เราสามารถสร้างสาย Polypeptide \lstinline{"SS"} (ต้นทุน 2 หน่วย), \lstinline{"ST"} (ต้นทุน 3 หน่วย), \lstinline{"TS"} (ต้นทุน 3 หน่วย), และ \lstinline{"TT"} (ต้นทุน 4 หน่วย) ได้ \;
+ดังนั้นแล้วต้นทุนรวมของ Mixture นี้เท่ากับ $2 + 3 + 3 + 4 = 12$ หน่วย ซึ่งน้อยที่สุดที่เป็นไปได้ในกรณีนี้ 
+
+
+\setSpacing{1.5}
+\subsection{Scoring}
+
+\noindent
+โปรแกรมของคุณจะถูกทดสอบกับ Test Cases ที่มีเงื่อนไขต่าง ๆ ดังนี้
+
+\begin{description}[topsep=0pc,itemsep=0pc]
+    \item[SMALL] (คะแนน 20\%) \\
+        รับประกันว่าจำนวนของประเภทสาย Polypeptide ที่ต้องการจะสอดคล้องกับเงื่อนไข \lstinline{1 ≤ n ≤ 100} และราคาของกรดอะมิโนต่อตัวในสาย Polypeptide จะสอดคล้องกับเงื่อนไข \lstinline{0 ≤ Cs, Ct ≤ 100}
+    \item[MEDIUM] (คะแนน 35\%) \\
+        รับประกันว่าจำนวนของประเภทสาย Polypeptide ที่ต้องการจะสอดคล้องกับเงื่อนไข \lstinline{1 ≤ n ≤ 100,000}
+    \item[LARGE] (คะแนน 45\%) \\
+        ไม่มีเงื่อนไขเพิ่มเติม
+\end{description}
+
+
+\setSpacing{1.5}
+\subsection{Limitations}
+
+\noindent
+โปรแกรมจะถูกจำกัดเวลาอยู่ที่ 0.4 วินาทีต่อ Test Case (baseline) และถูกจำกัดหน่วยความจำอยู่ที่ 512 MB
+\begin{itemize}[topsep=0pc,itemsep=0pc]
+    \item 
+        สำหรับโปรแกรมที่เขียนด้วยภาษา C หรือ C++ จะถูกจำกัดเวลาเท่ากับค่า baseline ข้างต้น
+    \item 
+        สำหรับโปรแกรมที่เขียนด้วยภาษา Go หรือ Java จะถูกจำกัดเวลาอยู่ที่ 1.5 เท่าของ baseline ข้างต้น
+    \item 
+        สำหรับโปรแกรมที่เขียนด้วยภาษา JavaScript หรือ Python จะถูกจำกัดเวลาอยู่ที่ 2.5 เท่าของ baseline ข้างต้น
+\end{itemize}

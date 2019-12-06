@@ -1,0 +1,196 @@
+%!TEX root = book.tex
+\section{Irregular Sequence}
+
+\setSpacing{1.5}
+\subsection{Problem Statement}
+
+กำหนดให้ \lstinline{S} เป็น Sequence ของจำนวนเต็ม \lstinline{S[0]}, \lstinline{S[1]}, \ldots, \lstinline{S[n-1]} ซึ่งมีค่าอยู่ในช่วง \lstinline{1} ถึง \lstinline{k} \;
+Sequence \lstinline{S} จะถือว่าเป็น \textbf{Irregular Sequence} ก็ต่อเมื่อใน Sequence ดังกล่าวไม่ปรากฏรูปแบบที่มีความซ้ำซ้อนบางประการ กล่าวคือ Sequence \lstinline{S} ดังกล่าวจะมีสมบัติ 2 ข้อดังต่อไปนี้ จึงจะถือว่าเป็น Irregular Sequence\;
+
+\begin{enumerate}
+    \item 
+        ไม่มีจำนวนที่ซ้ำกันอยู่ติดกัน (หมายถึง \lstinline{S[i-1] ≠ S[i]} สำหรับ \lstinline{i} \lstinline{=} \lstinline{1}, \lstinline{2}, \ldots, \lstinline{n-1})
+    \item
+        ไม่มี Subsequence (ลำดับย่อย) ความยาว 4 จำนวนชุดใด ๆ ที่เป็น Alternating Subsequence (หรือกล่าวอีกนัยหนึ่งคือสำหรับ \lstinline{w}, \lstinline{x}, \lstinline{y}, \lstinline{z} ใด ๆ ซึ่ง \lstinline{0 ≤ w < x < y < z ≤ n-1} จะพบว่า \lstinline{S[w] = S[y] ≠ S[x] = S[z]} ไม่เป็นความจริง) 
+\end{enumerate}
+
+\bigskip
+ลองพิจารณาตัวอย่างต่อไปนี้โดยสมมติว่า \lstinline{k = 5}
+
+\begin{itemize}[leftmargin=4pc]
+    \item  Sequence \lstinline{[1, 2, 3, 4, 5]} จะเป็น Irregular Sequence
+    \item  Sequence \lstinline{[1, 2, 3, 1, 4]} จะเป็น Irregular Sequence เช่นกัน
+    \item  Sequence \lstinline{[1, 2, 3, 3, 4]} จะไม่เป็น Irregular Sequence \\
+        เพราะปรากฏเลข \lstinline{3} ติดกันใน Sequence ดังกล่าว
+    \item  Sequence \lstinline{[1, 2, 3, 1, 3]} จะไม่เป็น Irregular Sequence \\ 
+        เพราะมี Alternating Subsequence \lstinline{[1, 3, 1, 3]} ปรากฏอยู่
+\end{itemize}
+
+สำหรับโจทย์ข้อนี้ จะมี Input Data เป็น Irregular Sequence \lstinline{P} ซึ่งมีขนาดเล็ก \;
+เราต้องการเติมจำนวนเต็มจากช่วง \lstinline{1} ถึง \lstinline{k} ต่อท้าย Sequence \lstinline{P} นี้ให้ยาวที่สุดโดยที่ Sequence ผลลัพธ์ยังคงเป็น Irregular Sequence อยู่เช่นเดิม \;
+กล่าวอีกนัยหนึ่งคือ เราต้องการหา Irregular Sequence \lstinline{S} ที่ยาวที่สุดที่มี Sequence \lstinline{P} เป็น Prefix \;
+หากมีคำตอบ \lstinline{S} หลายคำตอบ ให้ตอบ Sequence อันแรกสุดตามลำดับของ Lexicographical Ordering
+
+
+\setSpacing{1.5}
+\subsubsection{Lexicographical Ordering}
+
+\noindent
+กำหนดให้ $S_1$ และ $S_2$ คือ Sequence สองอันที่มีความยาวเท่ากัน \;
+แล้ว $S_1$ จะมาก่อน $S_2$ ใน Lexicographical Ordering ก็ต่อเมื่อมีจำนวนเต็ม $j$ ซึ่ง $S_1[\,i\,] = S_2[\,i\,]$ สำหรับทุก ๆ $0 \leq i < j$ และ $S_1[\,j\,] < S_2[\,j\,]$
+
+
+\setSpacing{1.5}
+\subsection{Situation Example}
+
+\noindent
+สมมติว่า \lstinline{k = 5} และ Input Sequence \lstinline{P} มีค่าดังต่อไปนี้
+
+\begin{lstlisting}[numbers=none]
+P = [1, 3, 5, 2, 3]
+\end{lstlisting}
+
+\noindent
+แล้วจะพบว่ามี Irregular Sequence \lstinline{S} ที่เป็นส่วนต่อขยายของ Input Sequence \lstinline{P} ได้สองรูปแบบคือ 
+
+\begin{lstlisting}[numbers=none]
+S = [1, 3, 5, 2, 3, 4, 3, 1]  # Possibility #1
+S = [1, 3, 5, 2, 3, 1, 4, 1]  # Possibility #2
+\end{lstlisting}
+
+\noindent
+ในบรรดารคำตอบที่เป็นไปได้ข้างต้น โปรแกรมควรให้คำตอบที่สอง \lstinline{S = [1, 3, 5, 2, 3, 1, 4, 1]} เนื่อง จากเป็นคำตอบที่ปรากฏแรกสุดในลำดับ Lexicographical Ordering
+
+
+\setSpacing{1.5}
+\subsection{Objectives}
+
+\noindent
+จงเขียนโปรแกรมเพื่อรับ Input Data ต่อไปนี้
+
+\begin{itemize}[topsep=0pc,itemsep=0pt]
+    \item 
+        จำนวนเต็ม \lstinline{k}\: (โดยที่ \lstinline{2 ≤ k ≤ 200,000})\;ระบุช่วงจำนวนที่สามารถปรากฏใน Sequence ได้
+    \item 
+        Sequence \lstinline{P}\:
+        (ประกอบด้วยจำนวนเต็ม \lstinline{P[0]}, \lstinline{P[1]}, \ldots, \lstinline{P[m-1]}\:
+        โดยที่ \lstinline{1 ≤ m ≤ 200,000}\; 
+        และสมาชิก \lstinline{P[i]} แต่ละจำนวนจะมีค่าสอดคล้องกับเงื่อนไข \lstinline{1 ≤ P[i] ≤ k})
+\end{itemize}
+
+\noindent
+แล้วจึงคำนวณ \uline{Irregular Sequence \lstinline{S} ที่ยาวที่สุด} ซึ่ง 
+
+\begin{itemize}[topsep=0pc,itemsep=0pt]
+    \item 
+        ประกอบไปด้วยจำนวนเต็มในช่วง \lstinline{1} ถึง \lstinline{k}
+    \item
+        มี Input Sequence \lstinline{P} เป็น Prefix 
+    \item 
+        และเป็นคำตอบที่พบแรกสุดเพื่อพิจารณาตามลำดับ Lexicographical Ordering
+\end{itemize}
+
+\noindent
+และคืนค่า Sequence \lstinline{S} ดังกล่าวเป็น Output Data ของโปรแกรม
+
+
+\setSpacing{1.5}
+\subsection{Interfaces and Data Format}
+
+\noindent
+โปรแกรมที่เขียนขึ้นจะต้องรับ Input Data ผ่าน Standard Input ซึ่งมีรูปแบบดังต่อไปนี้
+
+\begin{itemize}
+    \item
+        บรรทัดแรกมีจำนวนเต็มสองจำนวน \lstinline{k} และ \lstinline{m}
+    \item 
+        บรรทัดที่ \lstinline{i+2} 
+        สำหรับ \lstinline{i} \lstinline{=} \lstinline{0}, \lstinline{1}, \ldots, \lstinline{m-1}
+        จะมีจำนวนเต็มหนึ่งจำนวน ซึ่งก็คือ \lstinline{P[i]}
+\end{itemize}
+
+\begin{lstlisting}[aboveskip=1pc,xleftmargin=6pc]
+k m
+P[0]
+P[1]    <%\SuppressNumber\AlternateNumber{...}%>
+        <%\AlternateNumber{m+1}%>
+P[m-1]  <%\ReactivateNumber%>
+\end{lstlisting}
+
+\noindent
+โปรแกรมที่เขียนขึ้นจะต้องคืนค่า Sequence \lstinline{S} เป็น Output Data (ซึ่งเป็นคำตอบตามที่ระบุไว้ในหัวข้อ Objectives ข้างต้น) ผ่าน Standard Output ซึ่งมีรูปแบบดังต่อไปนี้
+
+\begin{itemize}
+    \item
+        บรรทัดแรกมีจำนวนเต็มหนึ่งจำนวน \lstinline{n}
+    \item 
+        บรรทัดที่ \lstinline{j+2} 
+        สำหรับ \lstinline{j} \lstinline{=} \lstinline{0}, \lstinline{1}, \ldots, \lstinline{n-1}
+        จะมีจำนวนเต็มหนึ่งจำนวน ซึ่งก็คือ \lstinline{S[j]}
+\end{itemize}
+
+\begin{lstlisting}[aboveskip=1pc,xleftmargin=6pc]
+n
+S[0]
+S[1]    <%\SuppressNumber\AlternateNumber{...}%>
+        <%\AlternateNumber{n+1}%>
+S[n-1]  <%\ReactivateNumber%>
+\end{lstlisting}
+
+\begin{center}
+\smallskip\small
+\begin{tabular}{p{0.425\linewidth}p{0.425\linewidth}}
+\toprule
+Example Input & Example Output \\
+\midrule
+\ttfamily\setSpacing{1}
+5 5 \newline
+1 \newline
+3 \newline
+5 \newline
+2 \newline
+3 &
+\ttfamily\setSpacing{1}
+8 \newline
+1 \newline
+3 \newline
+5 \newline
+2 \newline
+3 \newline
+1 \newline
+4 \newline
+1 \\
+\bottomrule
+\end{tabular}
+\end{center}
+
+
+\setSpacing{1.5}
+\subsection{Scoring}
+
+\noindent
+โปรแกรมของคุณจะถูกทดสอบกับ Test Cases ที่มีเงื่อนไขต่าง ๆ ดังนี้
+
+\begin{description}
+    \item[SMALL] (คะแนน 20\%) \\
+        รับประกันว่าความยาวของ Input Sequence จะสอดคล้องกับเงื่อนไข \lstinline{1 ≤ m ≤ 100} \\ และสมาชิกของ Irregular Sequence จะมี Upper Bound ที่สอดคล้องกับเงื่อนไข \lstinline{2 ≤ k ≤ 100}
+    \item[MEDIUM] (คะแนน 35\%) \\
+        รับประกันว่าความยาวของ Input Sequence จะสอดคล้องกับเงื่อนไข \lstinline{1 ≤ m ≤ 10,000} \\ และสมาชิกของ Irregular Sequence จะมี Upper Bound ที่สอดคล้องกับเงื่อนไข \lstinline{2 ≤ k ≤ 10,000}
+    \item[LARGE] (คะแนน 45\%) \\
+        ไม่มีเงื่อนไขเพิ่มเติม
+\end{description}
+
+
+\setSpacing{1.5}
+\subsection{Limitations}
+
+\noindent
+โปรแกรมจะถูกจำกัดเวลาอยู่ที่ 0.6 วินาทีต่อ Test Case (baseline) และถูกจำกัดหน่วยความจำอยู่ที่ 512 MB
+\begin{itemize}
+    \item 
+        สำหรับโปรแกรมที่เขียนด้วยภาษา C หรือ C++ จะถูกจำกัดเวลาเท่ากับค่า baseline ข้างต้น
+    \item 
+        สำหรับโปรแกรมที่เขียนด้วยภาษา Go หรือ Java จะถูกจำกัดเวลาอยู่ที่ 1.5 เท่าของ baseline ข้างต้น
+    \item 
+        สำหรับโปรแกรมที่เขียนด้วยภาษา JavaScript หรือ Python จะถูกจำกัดเวลาอยู่ที่ 2.5 เท่าของ baseline ข้างต้น
+\end{itemize}

@@ -1,0 +1,44 @@
+%!TEX root = robots_desc.tex
+
+%  _____         _   _               ____                            _
+% |_   _|__  ___| |_(_)_ __   __ _  / ___|  ___ ___ _ __   __ _ _ __(_) ___  ___
+%   | |/ _ \/ __| __| | '_ \ / _` | \___ \ / __/ _ \ '_ \ / _` | '__| |/ _ \/ __|
+%   | |  __/\__ \ |_| | | | | (_| |  ___) | (_|  __/ | | | (_| | |  | | (_) \__ \
+%   |_|\___||___/\__|_|_| |_|\__, | |____/ \___\___|_| |_|\__,_|_|  |_|\___/|___/
+%                            |___/
+
+\setSpacing{1.5}
+\section{Testing Scenarios}
+
+Web Service Application จะถูกนำมาทดสอบกับสถานการณ์ต่าง ๆ และหากทำงานได้อย่างถูกต้องภายใต้สถานการณ์ดังกล่าว จะได้คะแนนดังต่อไปนี้
+
+\begin{center}
+\smallskip\small
+\begin{tabular}{r@{\qquad}p{0.825\linewidth}}
+\toprule
+ปิ๊บแต้ม & สถานการณ์ที่ทดสอบ Application \\
+\midrule
++100 & \textbf{Implement:\,} Baseline Feature  \hfill ไม่เกิน 500 Request \\
++200 & \textbf{Implement:\,} Baseline Feature + A  \hfill ไม่เกิน 500 Request \\
+ +50 & \textbf{Implement:\,} Baseline Feature + B  \hfill ไม่เกิน 500 Request \\
+ +90 & \textbf{Implement:\,} Baseline Feature + A + C  \hfill ไม่เกิน 3,000 Request (Level 1) \\
+ +60 & \textbf{Implement:\,} Baseline Feature + A + C  \hfill ไม่เกิน 150,000 Request (Level 2) \\
+ +90 & \textbf{Implement:\,} Baseline Feature + A + D  \hfill ไม่เกิน 15,000 Request \\
+ +90 & \textbf{Implement:\,} Baseline Feature + A + E  \hfill ไม่เกิน 100 Request (Level 1) \\
+ +40 & \textbf{Implement:\,} Baseline Feature + A + E  \hfill ไม่เกิน 3,000 Request (Level 2)\\
+ +40 & \textbf{Implement:\,} Baseline Feature + A + E  \hfill ไม่เกิน 150,000 Request (Level 3) \\
+ +80 & \textbf{Implement:\,} Baseline Feature + A + C + F  \hfill ไม่เกิน 3,000 Request \\
+ +50 & \textbf{Implement:\,} Baseline Feature + A + G  \hfill ไม่เกิน 500 Request \\
+\midrule
+ +10 & ผู้เข้าแข่งขันเลือกที่จะปล่อย Source Code ของ Application นี้เป็น GPL-Compatible Open Source License จะได้คะแนนพิเศษส่วนนี้ไป \\
+\bottomrule
+\end{tabular}
+\end{center}
+
+\medskip
+\textbf{หมายเหตุ:} สำหรับแต่ละ Test Scenario ข้างต้น จะต้องรองรับ Request ทั้งหมดภายในเวลา 5 นาที และจะมี Resource ให้เป็น RAM 2 GB และ CPU จำนวน 2 cores
+
+\setSpacing{1.5}
+\subsection{Final Scoring}
+
+คะแนนที่ผู้เข้าแข่งขันได้จากสถานการณ์ที่ทดสอบข้างต้นนี้ จะถูกนำมา Normalized ให้เป็นคะแนนเต็มสำหรับโจทย์ Containerized Application นี้ (จากคะแนนเต็ม 900 ปิ๊บแต้มเหลือคะแนนเต็ม 80 คะแนน)

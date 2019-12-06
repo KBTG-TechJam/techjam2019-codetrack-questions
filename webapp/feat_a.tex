@@ -1,0 +1,179 @@
+%!TEX root = robots_desc.tex
+
+%  _____          _                    _____      _        _
+% |  ___|__  __ _| |_ _   _ _ __ ___  | ____|_  _| |_     / \
+% | |_ / _ \/ _` | __| | | | '__/ _ \ |  _| \ \/ / __|   / _ \
+% |  _|  __/ (_| | |_| |_| | | |  __/ | |___ >  <| |_   / ___ \
+% |_|  \___|\__,_|\__|\__,_|_|  \___| |_____/_/\_\\__| /_/   \_\
+%
+
+\setSpacing{1.5}
+\section{Feature Extension: A}
+
+\noindent
+เราจะเพิ่ม Feature ให้แก่ Web Service Application ดังนี้
+\begin{itemize}[topsep=0pc,itemsep=0pc]
+\item  
+    Robot แต่ละตัวสามารถส่งข้อมูลตำแหน่งปัจจุบันของตนเองมาอัปเดตให้กับ Web Service กลางได้ \\
+    (Robot แต่ละตัวจะระบุตัวเองด้วย ID ซึ่งเป็นจำนวนเต็มในช่วง $1$ ถึง $999,\!999$)
+\item 
+    ใครก็ได้สามารถ Query สอบถามตำแหน่งที่ทราบล่าสุดของ Robot ตัวหนึ่งที่กำหนดให้ได้
+\item 
+    เดิมทีนั้นเราจะอ้างอิงถึงจุดบนระนาบสองมิติด้วยระบบพิกัด $(x, y)$ แต่สำหรับ Feature นี้เราจะซัพพอร์ตวิธีการอ้างอิงถึงจุดบนระนาบสองมิติด้วย Robot ID \;
+    กล่าวคือเราจะใช้ ID ของ Robot เพื่อระบุถึงตำแหน่งพิกัดล่าสุดที่ Robot ดังกล่าวรายงานอัปเดตเข้ามาในระบบ Service กลาง
+    (ผ่าน Feature ใหม่ที่ระบุในข้อแรก)
+\end{itemize}
+
+\setSpacing{1.5}
+\subsection{API Endpoints}
+
+\noindent
+สำหรับ Feature Extension นี้จะต้อง Implement HTTP Endpoint เพิ่มเติมอีก 2 จุดคือ
+
+\begin{description}[parsep=0.5pc]
+\item[\npt{PUT}{/robot/\{robot\_id\}/position}] ~ \\
+    Update ข้อมูลตำแหน่งปัจจุบันของ Robot ที่กำหนดให้ \;
+    โดย Path Parameter \lstinline{robot_id} จะระบุ Robot ID ของ Robot ดังกล่าว และข้อมูลจาก JSON Field \lstinline{"position"} จะระบุตำแหน่งปัจจุบันของ Robot ดังกล่าว \;
+    (โดยให้นำข้อมูลนี้ไปแทนที่ข้อมูลเก่าของ Robot ข้างต้นหากมีข้อมูลเก่าอยู่แล้ว)
+\item[\npt{GET}{/robot/\{robot\_id\}/position}] ~ \\
+    Query เพื่อเรียกดูข้อมูลตำแหน่งที่อัปเดตล่าสุดของ Robot ที่กำหนดให้ \;
+    โดย Path Parameter \lstinline{robot_id} จะระบุ Robot ID ของ Robot
+\end{description}
+
+\noindent        
+รายละเอียดเพิ่มเติมสามารถหาอ่านได้จากไฟล์ API Specification ที่แนบมากับเอกสารนี้
+
+\setSpacing{1.5}
+\subsection{Modified Changes}
+
+\begin{itemize}[parsep=0.5pc]
+\item
+    ดังที่ได้เกริ่นไว้ข้างต้นแล้ว ผู้เข้าแข่งขันจะต้องแก้ไข Endpoint \npt{POST}{/distance} เพื่อให้ JSON Field \lstinline{"first_pos"} และ \lstinline{"second_pos"} สามารถรองรับการระบุตำแหน่งบนพื้นที่สองมิติด้วย Robot ID ได้ โดยข้อมูล Robot ID จะมาในรูปแบบของสตริงที่สอดคล้องกับ Regular Expression ดังต่อไปนี้
+    \begin{center}
+        \lstinline{"^robot#([1-9][0-9]*)$"}
+    \end{center}
+    และตำแหน่งพิกัดของจุดดังกล่าวจะเป็นค่าตำแหน่งของ Robot ข้างต้นนี้ที่ถูกอัปเดตล่าสุดผ่าน Endpoint \npt{PUT}{/robot/\{robot\_id\}/position}
+\end{itemize}
+
+\newpage
+\setSpacing{1.5}
+\subsection{Example Requests and Responses}
+
+\noindent
+พิจารณาลำดับของการเรียก API Endpoints ต่อไปนี้
+
+\begin{itemize}
+\item  %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\textbf{Request \#1:}
+\begin{lstlisting}[xleftmargin=1pc,numbers=none]
+PUT /robot/1/position HTTP/1.1
+Content-Type: application/json
+
+{
+  "position": {"x": 3, "y": 4}
+}
+\end{lstlisting}
+\textbf{Response \#1:}
+\begin{lstlisting}[xleftmargin=1pc,numbers=none]
+HTTP/1.1 204 No Content
+\end{lstlisting}
+
+\item  %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\textbf{Request \#2:}
+\begin{lstlisting}[xleftmargin=1pc,numbers=none]
+POST /distance HTTP/1.1
+Content-Type: application/json
+
+{
+  "first_pos": "robot#1",
+  "second_pos": {"x": 0, "y": 8}
+}
+\end{lstlisting}
+\textbf{Response \#2:}
+\begin{lstlisting}[xleftmargin=1pc,numbers=none]
+HTTP/1.1 200 OK
+Content-Type: application/json
+
+{
+  "distance": 5
+}
+\end{lstlisting}
+
+\item  %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\textbf{Request \#3:}
+\begin{lstlisting}[xleftmargin=1pc,numbers=none]
+GET /robot/1/position HTTP/1.1
+\end{lstlisting}
+\textbf{Response \#3:}
+\begin{lstlisting}[xleftmargin=1pc,numbers=none]
+HTTP/1.1 200 OK
+Content-Type: application/json
+
+{
+  "position": {"x": 3, "y": 4}
+}
+\end{lstlisting}
+
+\newpage
+\item  %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\textbf{Request \#4:}
+\begin{lstlisting}[xleftmargin=1pc,numbers=none]
+GET /robot/2/position HTTP/1.1
+\end{lstlisting}
+\textbf{Response \#4:}
+\begin{lstlisting}[xleftmargin=1pc,numbers=none]
+HTTP/1.1 404 Not Found
+\end{lstlisting}
+
+\item  %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\textbf{Request \#5:}
+\begin{lstlisting}[xleftmargin=1pc,numbers=none]
+PUT /robot/1/position HTTP/1.1
+Content-Type: application/json
+
+{
+  "position": {"x": 0, "y": 0}
+}
+\end{lstlisting}
+\textbf{Response \#5:}
+\begin{lstlisting}[xleftmargin=1pc,numbers=none]
+HTTP/1.1 204 No Content
+\end{lstlisting}
+
+\item  %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\textbf{Request \#6:}
+\begin{lstlisting}[xleftmargin=1pc,numbers=none]
+PUT /robot/2/position HTTP/1.1
+Content-Type: application/json
+
+{
+  "position": {"x": 1, "y": 1}
+}
+\end{lstlisting}
+\textbf{Response \#6:}
+\begin{lstlisting}[xleftmargin=1pc,numbers=none]
+HTTP/1.1 204 No Content
+\end{lstlisting}
+
+\item  %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\textbf{Request \#7:}
+\begin{lstlisting}[xleftmargin=1pc,numbers=none]
+POST /distance HTTP/1.1
+Content-Type: application/json
+
+{
+  "first_pos": "robot#2",
+  "second_pos": "robot#1"
+}
+\end{lstlisting}
+\textbf{Response \#7:}
+\begin{lstlisting}[xleftmargin=1pc,numbers=none]
+HTTP/1.1 200 OK
+Content-Type: application/json
+
+{
+  "distance": 1.414
+}
+\end{lstlisting}
+
+\end{itemize}

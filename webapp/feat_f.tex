@@ -1,0 +1,161 @@
+%!TEX root = robots_desc.tex
+
+%  _____          _                    _____      _     _____ 
+% |  ___|__  __ _| |_ _   _ _ __ ___  | ____|_  _| |_  |  ___|
+% | |_ / _ \/ _` | __| | | | '__/ _ \ |  _| \ \/ / __| | |_   
+% |  _|  __/ (_| | |_| |_| | | |  __/ | |___ >  <| |_  |  _|  
+% |_|  \___|\__,_|\__|\__,_|_|  \___| |_____/_/\_\\__| |_|    
+%                                                            
+
+\setSpacing{1.5}
+\section{Feature Extension: F}
+
+\begin{quote}
+  \footnotesize
+  \textbf{หมายเหตุ:} Web Service Application ของผู้เข้าแข่งขันจำเป็นต้อง Implement Feature Extension C ก่อนจึงจะ Implement Feature ใหม่ต่อไปนี้ได้
+\end{quote}
+
+\noindent
+เราจะเพิ่ม Feature ให้แก่ Web Service Application ดังนี้
+\begin{itemize}[topsep=0pc,itemsep=0pc]
+\item 
+    ใน Feature Extension C เดิมทีนั้น Endpoint \npt{POST}{/nearest} จะสามารถ Query เพื่อค้นหา Robot ที่อยู่ใกล้กับจุดที่กำหนดให้มากที่สุดเพียง 1 ตัว \;
+    ในส่วนนี้ เราจะรับ Input Parameter \lstinline{k} เพิ่มเติม เพื่อระบุว่าเราต้องการค้นหา Robot ที่อยู่ใกล้กับจุดที่กำหนดให้มากที่สุดทั้งสิ้น \lstinline{k} ตัว
+\end{itemize}
+
+\setSpacing{1.5}
+\subsection{Modified Changes}
+
+\begin{itemize}[parsep=0.5pc]
+\item 
+    ผู้เข้าแข่งขันจะต้องแก้ไข Endpoint \npt{POST}{/nearest} เพื่อให้รองรับ JSON Field ใหม่ชื่อว่า \lstinline{"k"} ซึ่งจะเป็นจำนวนเต็มที่ระบุจำนวน Robot ที่อยู่ใกล้จุด \lstinline{"ref_position"} มากที่สุดที่ต้องการค้นหา
+
+    Response Object จะมีอาร์เรย์ \lstinline{"robot_ids"} ความยาวไม่เกิน \lstinline{k} ซึ่งระบุ Robot ID เรียงตามลำดับระยะห่างจากจุดที่กำหนดให้ จากน้อยที่สุดไปหามากที่สุด \;
+    หากมี Robot หลายตัวที่มีระยะห่างจากจุดดังกล่าวเท่านั้น ให้พิจารณา Robot ที่มีค่า ID น้อยกว่าก่อนเป็นอันดับแรก
+\end{itemize}
+
+\noindent
+รายละเอียดเพิ่มเติมสามารถหาอ่านได้จากไฟล์ API Specification ที่แนบมากับเอกสารนี้
+
+\setSpacing{1.5}
+\subsection{Example Requests and Responses}
+
+\noindent
+พิจารณาลำดับของการเรียก API Endpoints ต่อไปนี้
+
+\begin{itemize}
+\item  %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\textbf{Request \#1:}
+\begin{lstlisting}[xleftmargin=1pc,numbers=none]
+PUT /robot/1/position HTTP/1.1
+Content-Type: application/json
+
+{
+  "position": {"x": 1, "y": 1}
+}
+\end{lstlisting}
+\textbf{Response \#1:}
+\begin{lstlisting}[xleftmargin=1pc,numbers=none]
+HTTP/1.1 204 No Content
+\end{lstlisting}
+
+\item  %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\textbf{Request \#2:}
+\begin{lstlisting}[xleftmargin=1pc,numbers=none]
+POST /nearest HTTP/1.1
+Content-Type: application/json
+
+{
+  "ref_position": {"x": -1, "y": 1},
+  "k": 2
+}
+\end{lstlisting}
+\newpage
+\textbf{Response \#2:}
+\begin{lstlisting}[xleftmargin=1pc,numbers=none]
+HTTP/1.1 200 OK
+Content-Type: application/json
+
+{
+  "robot_ids": [1]
+}
+\end{lstlisting}
+
+\item  %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\textbf{Request \#3:}
+\begin{lstlisting}[xleftmargin=1pc,numbers=none]
+PUT /robot/2/position HTTP/1.1
+Content-Type: application/json
+
+{
+  "position": {"x": 0, "y": 0}
+}
+\end{lstlisting}
+\textbf{Response \#3:}
+\begin{lstlisting}[xleftmargin=1pc,numbers=none]
+HTTP/1.1 204 No Content
+\end{lstlisting}
+
+\item  %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\textbf{Request \#4:}
+\begin{lstlisting}[xleftmargin=1pc,numbers=none]
+POST /nearest HTTP/1.1
+Content-Type: application/json
+
+{
+  "ref_position": {"x": -1, "y": 1}
+}
+\end{lstlisting}
+\textbf{Response \#4:}
+\begin{lstlisting}[xleftmargin=1pc,numbers=none]
+HTTP/1.1 200 OK
+Content-Type: application/json
+
+{
+  "robot_ids": [2]
+}
+\end{lstlisting}
+
+\item  %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\textbf{Request \#5}
+\begin{lstlisting}[xleftmargin=1pc,numbers=none]
+POST /nearest HTTP/1.1
+Content-Type: application/json
+
+{
+  "ref_position": {"x": -1, "y": 1},
+  "k": 2
+}
+\end{lstlisting}
+\textbf{Response \#5:}
+\begin{lstlisting}[xleftmargin=1pc,numbers=none]
+HTTP/1.1 200 OK
+Content-Type: application/json
+
+{
+  "robot_ids": [2, 1]
+}
+\end{lstlisting}
+
+\newpage
+\item  %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\textbf{Request \#6:}
+\begin{lstlisting}[xleftmargin=1pc,numbers=none]
+POST /nearest HTTP/1.1
+Content-Type: application/json
+
+{
+  "ref_position": {"x": 1, "y": 0},
+  "k": 2
+  }
+\end{lstlisting}
+\textbf{Response \#6:}
+\begin{lstlisting}[xleftmargin=1pc,numbers=none]
+HTTP/1.1 200 OK
+Content-Type: application/json
+
+{
+  "robot_ids": [1, 2]
+}
+\end{lstlisting}
+\end{itemize}

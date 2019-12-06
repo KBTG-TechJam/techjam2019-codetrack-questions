@@ -1,0 +1,223 @@
+%!TEX root = book.tex
+\section{TechJam–CRC}
+
+\setSpacing{1.5}
+\subsection{Problem Statement}
+
+ในการเตรียมจัดงานแข่งขัน TechJam{\,}2018 นั้นจำเป็นต้องถ่ายเถรับส่งข้อความจำนวนมาก ซึ่งข้อความดังกล่าวสามารถมองเป็น Bit String (หรือสตริงที่ประกอบไปด้วยเลขโดด 0 หรือ 1) จำนวนมหาศาลได้ \;
+ทีมผู้จัดงานจึงได้ออกแบบระบบ Checksum แบบใหม่ขึ้นมาใช้งานเองเป็นกาลเฉพาะ มีชื่อเรียกว่า “{\hrsp}TechJam–CRC{\hrsp}”
+
+การคำนวณหา TechJam–CRC ของข้อความหนึ่ง ๆ จะต้องเป็นข้อมูลนำเข้าในรูปของ Bit String เท่านั้น \;
+และจะต้องมี Key (กุญแจ) ซึ่งเป็น Bit String อีกตัวหนึ่งเอาไว้ประกอบการคำนวณ TechJam–CRC ของข้อความดังกล่าว โดยที่ความยาวของ Key จะต้องสั้นกว่าหรือเท่ากับความยาวของข้อความตั้งต้น
+
+การคำนวณหา TechJam–CRC ของข้อความหนึ่ง ๆ ประกอบด้วยขั้นตอนดังต่อไปนี้
+
+\medskip
+\begin{lstlisting}
+function TechJam_CRC(M, K):
+    # M is a bit string to compute the CRC
+    # K is the key bit string such that length(K) ≤ length(M)
+    if length(M) == length(K) then:
+        return M
+    end
+    c := Last digit of M
+    Remove last digit from bit string M
+    if c == 1 then:
+        M := M xor K 
+    end
+    return TechJam_CRC(M, K)
+end
+\end{lstlisting}
+
+\medskip
+สังเกตว่า Recursive Call ของ \lstinline{TechJam_CRC} แต่ละครั้ง ความยาวของ Bit String \lstinline{M} จะลดลงทึละหนึ่ง จนกว่าสตริงดังกล่าวจะยาวเท่ากับ Key \lstinline{K} \;
+นอกจากนั้น ค่า CRC ผลลัพธ์จะเป็น Bit String ที่มีความยาวเท่ากับ Key \lstinline{K} ดังกล่าวเสมอ
+
+\textbf{ข้อควรทราบ:} \lstinline{xor} หรือ Exclusive OR ระหว่าง Bit String สองสตริง ให้คำนวณแบบ Bitwise Exclusive OR \;
+ในกรณีที่สตริงทั้งสองอันยาวไม่เท่ากัน ให้ทำการ Pad สตริงที่สั้นกว่าด้วย Leading Zero จนกว่าสตริงทั้งสองจะยาวเท่ากัน เช่น การหา \lstinline{101100 xor 1001} จะได้ผลลัพธ์เป็น \lstinline{100101}
+
+\begin{center}
+\begin{minipage}{0.35\linewidth}
+\begin{lstlisting}[numbers=none]
+1 0 1 1 0 0
+    1 0 0 1 xor
+------------
+1 0 0 1 0 1
+\end{lstlisting}
+\end{minipage}
+\end{center}
+
+
+\setSpacing{1.5}
+\subsubsection{ตัวอย่างการหา TechJam–CRC}
+
+สมมติว่าเราต้องการคำนวณ \lstinline{TechJam_CRC(M=0110010, K=110)} ฟังก์ชันจะมีกระบวนการทำงานดังนี้ 
+
+\newpage
+\begin{center}
+\smallskip
+\begin{tabular}{p{0.1\linewidth}p{0.75\linewidth}}
+\toprule
+รอบที่ & สิ่งที่เกิดขึ้น \\
+\midrule
+\ttfamily\setSpacing{1}
+  & ให้ {\,\lstinline[]'M = 0110010'\,} และ {\,\lstinline[]'K = 110'\,} \\
+1 & \lstinline[]'M = 0110010' \newline 
+    \lstinline[]'c = 0' \quad ดังนั้นแล้วค่าใหม่คือ \,\lstinline[]'M = 011001' \\
+2 & \lstinline[]'M = 011001' \newline 
+    \lstinline[]'c = 1' \quad ดังนั้นแล้วค่าใหม่คือ \,\lstinline[]'M = 01100 xor 110 = 01010' \\
+3 & \lstinline[]'M = 01010' \newline
+    \lstinline[]'c = 0' \quad ดังนั้นแล้วค่าใหม่คือ \,\lstinline[]'M = 0101' \\
+4 & \lstinline[]'M = 0101' \newline 
+    \lstinline[]'c = 1' \quad ดังนั้นแล้วค่าใหม่คือ \,\lstinline[]'M = 010 xor 110 = 100' \\
+\bottomrule
+\end{tabular}
+\end{center}
+
+\noindent
+ดังนั้นแล้วผลลัพธ์ของ \lstinline{TechJam_CRC(M=0110010, K=110)} คือ \lstinline{100}
+
+
+\setSpacing{1.5}
+\subsubsection{ส่วนของข้อความที่หายไป}
+
+ในการใช้งานจริงนั้น ก่อนที่เราจะส่งข้อความ Bit String \lstinline{M} ผ่านระบบเครือข่ายนั้น เราจะคำนวณค่า Checksum ของ \lstinline{M} ก่อน ซึ่งก็คือ \lstinline{H = TechJam_CRC(M, K)} แล้วจึงส่งทั้งสตริง \lstinline{M} และ \lstinline{H} ไปพร้อมกัน  (\textbf{หมายเหตุ:} ค่า Key \lstinline{K} เป็นค่า Bit String ที่ตกลงกันไว้ล่วงหน้าแล้ว)
+
+ในบางครั้ง เมื่อเราส่งข้อความ \lstinline{M} ผ่านระบบเครือข่ายที่มีคลื่นรบกวนแล้วนั้น ผู้รับสารไม่สามารถอ่านค่าบิตบางตัวของ \lstinline{M} ได้เพราะมีคลื่นรบกวนมากเกินไป \;
+เราจะเรียกข้อความที่ผู้รับสารมองเห็นดังกล่าวว่า \lstinline{M*} ซึ่งเกิดจากข้อความ \lstinline{M} เดิมที่ค่าบิตบางตัวอ่านไม่ออก (ซึ่งอาจจะเขียนด้วยเครื่องหมายปรัศนี \lstinline{'?'} แทนเลขโดด \lstinline{'0'} และ \lstinline{'1'}) \;
+แต่เมื่อเราทราบค่า Checksum \lstinline{H} ของข้อความ \lstinline{M} เดิมและค่า Key \lstinline{K} แล้ว
+เราอาจจะ Recover บิตบางตัวที่เดิมทีอ่านไม่ออกในข้อความ \lstinline{M*} ได้ 
+
+
+\setSpacing{1.5}
+\subsection{Objectives}
+
+\noindent
+จงเขียนโปรแกรมเพื่อรับ Input Data ดังต่อไปนี้
+\begin{itemize}
+    \item
+        ค่าสตริง \lstinline{M*} ที่มีคลื่นรบกวน ซึ่งมีความยาว \lstinline{n} (โดยที่ \lstinline{1 ≤ n ≤ 100,000}) \\
+        รับประกันว่าในสตริงนี้จะประกอบไปด้วยคลื่นรบกวน \lstinline{'?'} ไม่เกิน 1000 ตัวอักษร
+    \item 
+        ค่า Key \lstinline{K} ซึ่งมีความยาว \lstinline{p} (โดยที่ \lstinline{1 ≤ p ≤ 100} และ \lstinline{p ≤ n})
+    \item 
+        และค่า Checksum \lstinline{H} ความยาว \lstinline{p} ของข้อความ \lstinline{M} เดิม 
+\end{itemize}
+
+\noindent
+แล้วจึงคำนวณหาข้อความดั้งเดิม \lstinline{M} จาก Input Data ข้างต้น แล้วจึงคืนคำตอบดังกล่าวออกมาเป็น Output Data
+
+หากมีหลายคำตอบที่เป็นไปได้ ให้แสดงคำตอบที่เมื่อตีความเป็นจำนวนเต็มแบบ Unsigned Integer แล้วจะมีค่าน้อยที่สุดที่เป็นไปได้ \;
+แต่ถ้าไม่มีคำตอบที่เป็นไปได้เลยจาก Input Data ที่โจทย์กำหนดให้ ให้แสดงคำว่า \lstinline{"IMPOSSIBLE"}
+
+
+\setSpacing{1.5}
+\subsection{Interfaces and Data Format}
+
+\noindent
+โปรแกรมที่เขียนขึ้นจะต้องรับ Input Data ผ่าน Standard Input ซึ่งมีรูปแบบดังต่อไปนี้
+
+\begin{itemize}
+    \item
+        บรรทัดแรกมีจำนวนเต็มสองจำนวน \lstinline{n} และ \lstinline{p} ซึ่งระบุถึงความยาวของข้อความ \lstinline{M} และ Key \lstinline{K} ตามลำดับ
+    \item 
+        บรรทัดที่สองระบุสตริงความยาว \lstinline{n} ซึ่งเป็นข้อความ \lstinline{M*} ที่อาจมีคลื่นรบกวน
+    \item 
+        บรรทัดที่สามระบุสตริงยาว \lstinline{p} ซึ่งเป็นค่า Key \lstinline{K}
+    \item
+        บรรทัดที่สี่ระบุสตริงยาว \lstinline{p} ซึ่งเป็นค่า Checksum \lstinline{H = TechJam_CRC(M, K)}
+\end{itemize}
+
+\begin{lstlisting}[aboveskip=1pc,xleftmargin=6pc]
+n p
+M*
+K
+H
+\end{lstlisting}
+
+โปรแกรมที่เขียนขึ้นจะต้องคืน Output Data ผ่าน Standard Output เป็นข้อความ Bit String ดั้งเดิม \lstinline{M} หรือตอบคำว่า \lstinline{"IMPOSSIBLE"} ในกรณีที่ไม่มีคำตอบ ตามที่ระบุไว้ในหัวข้อ Objectives ข้างต้น
+
+\begin{center}
+\smallskip\small
+\begin{tabular}{p{0.425\linewidth}p{0.425\linewidth}}
+\toprule
+Example Input & Example Output \\
+\midrule
+\ttfamily\setSpacing{1}
+7 3 \newline
+0110??? \newline
+110 \newline
+100 &
+\ttfamily\setSpacing{1}
+0110010 \\
+\midrule
+\ttfamily\setSpacing{1}
+6 4 \newline
+1????? \newline
+1011 \newline
+0010 &
+\ttfamily\setSpacing{1}
+100110 \\
+\midrule
+\ttfamily\setSpacing{1}
+6 4 \newline
+1?1??? \newline
+1011 \newline
+0010 &
+\ttfamily\setSpacing{1}
+IMPOSSIBLE \\
+\midrule
+\ttfamily\setSpacing{1}
+2 2 \newline
+11 \newline
+11 \newline
+11 &
+\ttfamily\setSpacing{1}
+11 \\
+\midrule
+\ttfamily\setSpacing{1}
+2 2 \newline
+10 \newline
+11 \newline
+11 &
+\ttfamily\setSpacing{1}
+IMPOSSIBLE \\
+\bottomrule
+\end{tabular}
+\end{center}
+
+\medskip
+\noindent
+\textbf{หมายเหตุ:} ในตัวอย่างที่สอง มี 2 คำตอบคือ \lstinline{"100110"} และ \lstinline{"110001"} แต่เนื่องจาก \lstinline{"100110"} มีค่าน้อยกว่าจึงตอบสตริงดังกล่าว
+
+
+\newpage
+\setSpacing{1.5}
+\subsection{Scoring}
+
+\noindent
+โปรแกรมของคุณจะถูกทดสอบกับ Test Cases ที่มีเงื่อนไขต่าง ๆ ดังนี้
+
+\begin{description}
+    \item[SMALL] (คะแนน 20\%) \\
+        รับประกันว่าความยาวของข้อความจะสอดคล้องกับเงื่อนไข $1 \leq n \leq 10$
+    \item[MEDIUM] (คะแนน 35\%) \\
+        รับประกันว่าความยาวของข้อความจะสอดคล้องกับเงื่อนไข $1 \leq n \leq 100$ และในข้อความที่ผู้รับสารเห็นจะมีคลื่นรบกวน \lstinline{'?'} ไม่เกิน 30 ตัว
+    \item[LARGE] (คะแนน 45\%) \\
+        ไม่มีเงื่อนไขเพิ่มเติม
+\end{description}
+
+
+\setSpacing{1.5}
+\subsection{Limitations}
+
+\noindent
+โปรแกรมจะถูกจำกัดเวลาอยู่ที่ 0.6 วินาทีต่อ Test Case (baseline) และถูกจำกัดหน่วยความจำอยู่ที่ 512 MB
+\begin{itemize}
+    \item 
+        สำหรับโปรแกรมที่เขียนด้วยภาษา C หรือ C++ จะถูกจำกัดเวลาเท่ากับค่า baseline ข้างต้น
+    \item 
+        สำหรับโปรแกรมที่เขียนด้วยภาษา Go หรือ Java จะถูกจำกัดเวลาอยู่ที่ 1.5 เท่าของ baseline ข้างต้น
+    \item 
+        สำหรับโปรแกรมที่เขียนด้วยภาษา JavaScript หรือ Python จะถูกจำกัดเวลาอยู่ที่ 2.5 เท่าของ baseline ข้างต้น
+\end{itemize}

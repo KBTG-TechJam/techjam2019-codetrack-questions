@@ -1,0 +1,160 @@
+%!TEX root = book.tex
+\section{Reconstruct Transaction List}
+
+\setSpacing{1.5}
+\subsection{Problem Statement}
+
+นายกสิกรเป็นคนที่ชอบจดบันทึกรายรับ-รายจ่ายของตนเอง \; 
+ในตอนต้นเดือนของทุก ๆ เดือนเขาจะนำเงินที่เหลือค้างจากเดือนก่อนหน้าออกจากกระเป๋าตังค์ของเขาทั้งหมด และเริ่มต้นเดือนใหม่ด้วยเงิน 0 บาทในกระเป๋าตังค์ \;
+นอกจากนั้น เขาจะนำสมุดเปล่าสำหรับจดบันทึกรายการรายรับ-รายจ่ายใส่ไว้ในกระเป๋าเป้ไว้ 2 เล่ม เพื่อเอาไว้บันทึกรายรับ-รายจ่ายสำหรับเดือนใหม่
+
+ตลอดทั้งเดือนนี้ ทุก ๆ ครั้งที่นายกสิกรมีเงินเข้าหรือออกจากกระเป๋าตังค์ (กล่าวคือมี \textbf{Transaction} รายการใหม่เกิดขึ้น) \;เขาจะสุ่มเลือกหยิบสมุดบันทึกรายการรายรับ-รายจ่ายจากกระเป๋าเป้ออกมา 1 เล่ม \;
+แล้วจากนั้นเขาจะจดบันทึก Transaction ดังกล่าวต่อท้ายรายการก่อนหน้าที่เคยจดไว้แล้วในสมุดเล่มนั้น \;
+
+เมื่อถึงเวลาสิ้นเดือน นายกสิกรจะนำบันทึกรายการ Transaction จากสมุดทั้งสองเล่มมาเขียนรวมกันกลายเป็นบันทึกรายการรายรับ-รายจ่ายฉบับเต็ม (\textbf{Consolidated Transaction List}) โดยที่เงื่อนไขดังต่อไปนี้ \;
+
+\begin{enumerate}
+    \item ลำดับของ Transaction ที่ปรากฏในบันทึกฉบับเต็ม จะต้องสอดคล้องกับลำดับของ Transaction ที่ปรากฏในสมุดแต่ละเล่ม
+    \item เมื่อพิจารณารายการรายรับ-รายจ่าย จากรายการแรกไปยังรายการสุดท้าย ยอดคงเหลือสะสม ณ เวลาใด ๆ ไม่สามารถมีค่าติดลบได้ (นั่นก็เพราะว่าไม่มีเวลาใด ๆ ที่นายกสิกรใช้จ่ายเงินมากกว่าเงินที่คงเหลือในกระเป๋าตังค์ของเขา)
+\end{enumerate}
+
+
+\setSpacing{1.5}
+\subsection{Situation Example}
+
+\noindent
+สมมติว่า \lstinline{A} และ \lstinline{B} คือลำดับของ Transaction ที่ปรากฏภายในสมุดทั้งสองเล่มตามลำดับ ซึ่งมีค่าดังต่อไปนี้
+
+\begin{lstlisting}[xleftmargin=2pc,numbers=none]
+A = [10, -7, -4]
+B = [-8, 6, 8, -4]
+\end{lstlisting}
+
+\noindent
+รายการ \lstinline{A} และ \lstinline{B} ข้างต้นสามารถนำมารวมกันเป็น Consolidated Transaction List ได้ 5 วิธี ได้แก่
+
+\begin{itemize}[leftmargin=2pc,topsep=0.25pc] 
+    \setSpacing{1}
+    \item[] \textbf{วิธีที่ 1.}\;\; \lstinline{[ 10 A, -8 B, 6 B, -7 A,  8 B, -4 A, -4 B ]}
+    \item[] \textbf{วิธีที่ 2.}\;\; \lstinline{[ 10 A, -8 B, 6 B, -7 A,  8 B, -4 B, -4 A ]}
+    \item[] \textbf{วิธีที่ 3.}\;\; \lstinline{[ 10 A, -8 B, 6 B,  8 B, -7 A, -4 A, -4 B ]}
+    \item[] \textbf{วิธีที่ 4.}\;\; \lstinline{[ 10 A, -8 B, 6 B,  8 B, -7 A, -4 B, -4 A ]}
+    \item[] \textbf{วิธีที่ 5.}\;\; \lstinline{[ 10 A, -8 B, 6 B,  8 B, -4 B, -7 A, -4 A ]}
+\end{itemize}
+
+
+\newpage
+\setSpacing{1.5}
+\subsection{Objectives}
+
+\noindent
+จงเขียนโปรแกรมเพื่อรับ Input Data ต่อไปนี้
+
+\begin{itemize}[topsep=0pc,itemsep=0pt]
+    \item 
+        ลำดับของ Transaction \lstinline{A}\:
+        (ประกอบด้วยจำนวนเต็ม \lstinline{A[0]}, \lstinline{A[1]}, \ldots, \lstinline{A[n-1]} โดยที่ \lstinline{1 ≤ n ≤ 2,000} และ Transaction \lstinline{A[i]} แต่ละรายการจะสอดคล้องกับเงื่อนไข \lstinline{-500,000 ≤ A[i] ≤ 500,000}) \;
+        ซึ่งจะแสดงยอดรายรับหรือรายจ่ายแต่ละ Transaction ที่ถูกบันทึกไว้ภายในสมุดเล่มแรกในหนึ่งเดือน
+    \item 
+        ลำดับของ Transaction \lstinline{B}\:
+        (ประกอบด้วยจำนวนเต็ม \lstinline{B[0]}, \lstinline{B[1]}, \ldots, \lstinline{B[m-1]} โดยที่ \lstinline{1 ≤ m ≤ 2,000} และ Transaction \lstinline{B[j]} แต่ละรายการจะสอดคล้องกับเงื่อนไข \lstinline{-500,000 ≤ B[j] ≤ 500,000}) \;
+        ซึ่งจะแสดงยอดรายรับหรือรายจ่ายแต่ละ Transaction ที่ถูกบันทึกไว้ภายในสมุดเล่มที่สองในเดือนเดียวกัน
+\end{itemize}
+
+\noindent
+แล้วจึงคำนวณ\uline{จำนวนวิธี}ที่นายกสิกรสามารถควบรวมบันทึกรายการ Transaction จากสมุดทั้งสองเล่มให้กลาย Consolidated Transaction List ตอนท้ายเดือน และคืนค่าคำตอบดังกล่าวเป็น Output Data ของโปรแกรม
+
+หากคำตอบข้างต้นมีค่ามากกว่าหรือเท่ากับ 1,000,000,007 ให้ตอบคำตอบในรูปเศษที่เกิดจากการหารค่าด้งกล่าวด้วยจำนวนเต็ม 1,000,000,007
+
+
+\setSpacing{1.5}
+\subsection{Interfaces and Data Format}
+
+\noindent
+โปรแกรมที่เขียนขึ้นจะต้องรับ Input Data ผ่าน Standard Input ซึ่งมีรูปแบบดังต่อไปนี้
+
+\begin{itemize}[topsep=0pc,itemsep=0pt]
+    \item
+        บรรทัดแรกมีจำนวนเต็มหนึ่งจำนวน ซึ่งก็คือ \lstinline{n}
+    \item 
+        บรรทัดที่ \lstinline{i+2} 
+        สำหรับ \lstinline{i} \lstinline{=} \lstinline{0}, \lstinline{1}, \ldots, \lstinline{n-1}
+        จะมีจำนวนเต็มหนึ่งจำนวน ซึ่งก็คือ \lstinline{A[i]}
+    \item
+        บรรทัดที่ \lstinline{n+2} มีจำนวนเต็มหนึ่งจำนวน ซึ่งก็คือ \lstinline{m}
+    \item 
+        บรรทัดที่ \lstinline{n+j+3} 
+        สำหรับ \lstinline{j} \lstinline{=} \lstinline{0}, \lstinline{1}, \ldots, \lstinline{m-1}
+        จะมีจำนวนเต็มหนึ่งจำนวน ซึ่งก็คือ \lstinline{B[j]}
+\end{itemize}
+
+\begin{lstlisting}[aboveskip=1pc,xleftmargin=6pc]
+n
+A[0]
+A[1]    <%\SuppressNumber\AlternateNumber{...}%>
+        <%\AlternateNumber{n+1}%>
+A[n-1]  <%\AlternateNumber{n+2}%>
+m       <%\AlternateNumber{n+3}%>
+B[0]    <%\AlternateNumber{n+4}%>
+B[1]    <%\AlternateNumber{...}%>
+        <%\AlternateNumber{n+m+2}%>
+B[m-1]  <%\ReactivateNumber%>
+\end{lstlisting}
+
+\noindent
+โปรแกรมที่เขียนขึ้นจะต้องคืน Output Data ผ่าน Standard Output เป็นจำนวนเต็ม 1 จำนวน ซึ่งเป็นคำตอบของโจทย์ตามที่ระบุไว้ในหัวข้อ Objectives ข้างต้น
+
+\newpage
+\begin{center}
+\smallskip\small
+\begin{tabular}{p{0.425\linewidth}p{0.425\linewidth}}
+\toprule
+Example Input & Example Output \\
+\midrule
+\ttfamily\setSpacing{1}
+3 \newline
+10 \newline
+-7 \newline
+-4 \newline
+4 \newline
+-8 \newline
+6 \newline
+8 \newline
+-4 &
+\ttfamily\setSpacing{1}
+5 \\
+\bottomrule
+\end{tabular}
+\end{center}
+
+
+\setSpacing{1.5}
+\subsection{Scoring}
+
+\noindent
+โปรแกรมของคุณจะถูกทดสอบกับ Test Cases ที่มีเงื่อนไขต่าง ๆ ดังนี้
+
+\begin{description}[topsep=0pc,itemsep=0pc]
+    \item[SMALL] (คะแนน 20\%) \\
+        รับประกันว่าความยาวของ Input Transaction List แต่ละอันจะสอดคล้องกับเงื่อนไข \lstinline{1 ≤ n,m ≤ 100} \\ 
+        และ Transaction แต่ละรายการจะสอดคล้องกับเงื่อนไข \lstinline{-1 ≤ A[i] ≤ 1} สำหรับ \lstinline{i} \lstinline{=} \lstinline{0}, \lstinline{1}, \ldots, \lstinline{n-1} และ \lstinline{-1 ≤ B[j] ≤ 1} สำหรับ \lstinline{j} \lstinline{=} \lstinline{0}, \lstinline{1}, \ldots, \lstinline{m-1} 
+    \item[MEDIUM] (คะแนน 35\%) \\
+        รับประกันว่าความยาวของ Input Transaction List แต่ละอันจะสอดคล้องกับเงื่อนไข \lstinline{1 ≤ n,m ≤ 100}
+    \item[LARGE] (คะแนน 45\%) \\
+        ไม่มีเงื่อนไขเพิ่มเติม
+\end{description}
+
+
+\setSpacing{1.5}
+\subsection{Limitations}
+
+\noindent
+โปรแกรมจะถูกจำกัดเวลาอยู่ที่ 1.0 วินาทีต่อ Test Case (baseline) และถูกจำกัดหน่วยความจำอยู่ที่ 512 MB
+\begin{itemize}[topsep=0pc,itemsep=0pc]
+    \item 
+        สำหรับโปรแกรมที่เขียนด้วยภาษา C หรือ C++ จะถูกจำกัดเวลาเท่ากับค่า baseline ข้างต้น
+    \item 
+        สำหรับโปรแกรมที่เขียนด้วยภาษา Go หรือ Java จะถูกจำกัดเวลาอยู่ที่ 1.5 เท่าของ baseline ข้างต้น
+    \item 
+        สำหรับโปรแกรมที่เขียนด้วยภาษา JavaScript หรือ Python จะถูกจำกัดเวลาอยู่ที่ 2.5 เท่าของ baseline ข้างต้น
+\end{itemize}
