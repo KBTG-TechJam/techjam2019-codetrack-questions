@@ -1,0 +1,642 @@
+openapi: 3.0.0
+info:
+  title: TechJam2019 Code - Survey Robots
+  description: |
+    A centralized service for survey robots deployment.
+
+    ## Changelog
+
+    <table>
+      <thead>
+        <tr>
+          <th>Version</th>
+          <th>Changes</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td valign="top">1.7.0</td>
+          <td>
+            <strong>Feature Extension G:</strong>
+            <ul>
+              <li><i>Requires implementation of Feature Extension A</i></li>
+              <li>
+                Distance measuring endpoint now accepts a position
+                in legacy format X.
+              </li>
+              <li>
+                Robot's position reporting endpoint
+                now accepts a position in legacy format X.
+              </li>
+            </ul>
+          </td>
+        </tr>
+        <tr>
+          <td valign="top">1.6.0</td>
+          <td>
+            <strong>Feature Extension F:</strong>
+            <ul>
+              <li><i>Requires implementation of Feature Extension C</i></li>
+              <li>Robot searching endpoint now accepts finding more than one robot.</li>
+            </ul>
+          </td>
+        </tr>
+        <tr>
+          <td valign="top">1.5.0</td>
+          <td>
+            <strong>Feature Extension E:</strong>
+            <ul>
+              <li><i>Requires implementation of Feature Extension A</i></li>
+              <li>
+                A new endpoint to find the closest pair of robots
+                based on the most recently reported positions of each robot.
+              </li>
+            </ul>
+          </td>
+        </tr>
+        <tr>
+          <td valign="top">1.4.0</td>
+          <td>
+            <strong>Feature Extension D:</strong>
+            <ul>
+              <li><i>Requires implementation of Feature Extension A</i></li>
+              <li>
+                A new endpoint for robots to report a radar scanning
+                of an alien object in their sightings.
+              </li>
+              <li>
+                A new endpoint to obtain the calculated position of an alient object
+                based on radar scanning data reported by robots.
+              </li>
+            </ul>
+          </td>
+        </tr>
+        <tr>
+          <td valign="top">1.3.0</td>
+          <td>
+            <strong>Feature Extension C:</strong>
+            <ul>
+              <li><i>Requires implementation of Feature Extension A</i></li>
+              <li>
+                A new endpoint to find a robot whose position is closest
+                to a given point.
+              </li>
+            </ul>
+          </td>
+        </tr>
+        <tr>
+          <td valign="top">1.2.0</td>
+          <td>
+            <strong>Feature Extension B:</strong> 
+            <ul>
+              <li>Distance measuring endpoint now accepts distance metric options.</li>
+            </ul>
+          </td>
+        </tr>
+        <tr>
+          <td valign="top">1.1.0</td>
+          <td>
+            <strong>Feature Extension A:</strong> 
+            <ul>
+              <li>A new endpoint for robots to report their positions.</li>
+              <li>A new endpoint to obtain the most recent position of a robot.</li>
+              <li>Distance measuring endpoint now accepts robot ID.</li>
+            </ul>
+          </td>
+        </tr>
+        <tr>
+          <td valign="top">1.0.0</td>
+          <td>Baseline feature documentation</td>
+        </tr>
+      </tbody>
+    </table>
+
+    ## Additional Information
+
+    ### Coordinates
+
+    The area being explored by robots will be a 2-dimensional space
+    whose coordinates in x- and y-axis range between -10⁹ and 10⁹, inclusive.
+
+    ### Robot IDs
+
+    _New in version 1.1.0_
+
+    Each robot will have a unique ID which is an integer between 1 and 999999,
+    inclusive.
+
+    ### Alien objects
+
+    _New in version 1.4.0_
+
+    Each scanning of an alien object (by any robot) yields two readings:
+    the first reading is the distance between the robot and the object
+    and the second reading is the string unique to such alien object
+    (called the **Object DNA** which consists of 16 lowercase characters a-z).
+
+    It is safe to assume that Object DNA uniquely identifies an alien object.
+
+    ### Position by numerical coordinates
+
+    A position inside the 2-dimensional area can be described by an object with
+    exactly two subfields, `"x"` and `"y"`, for their x- and y- integer coordinates,
+    respectively.
+
+    Coordinate in each axis is guaranteed to range between -10⁹ and 10⁹.
+
+    ### Position by numerical coordinates (legacy format X)
+
+    _New in version 1.7.0_
+
+    Some old robots may use the subfield `"north"` or `"south"` as the substitution of
+    the subfield `"y"` (described above) for its non-negative or negative value
+    counterparts, respectively.
+    Likewise, the subfield `"east"` and `"west"` may be used as the substitution of
+    the subfield `"x"` (described above) for its non-negative or negative value,
+    respectively.
+
+    For example, `{"x": 1, "y": -2}` translates to `{"south": 2, "east": 1}`
+    and `{"x": -3, "y": 0}` translates to `{"north": 0, "west": 3}`.
+
+    ### Position by robot ID
+
+    _New in version 1.1.0_
+
+    A position on a 2-dimensional plane can also be identified by a robot's
+    most recently self-reported position. In this case, it is described by
+    a single string matching the following regular expression
+
+    ```
+    ^robot#([1-9][0-9]*)$
+    ```
+
+    where the only capturing group above matches the robot ID.
+
+
+  version: "1.7.0"
+servers:
+  - url: https://localhost:8000/
+    description: Local environment
+components:
+  schemas:
+    position:
+      type: object
+      required:
+        - x
+        - y
+      properties:
+        x:
+          type: integer
+          description: x-coordinate value
+        y:
+          type: integer
+          description: y-coordinate value
+    legacyPosition:
+      type: object
+      properties:
+        north:
+          type: integer
+          description: |
+            Absolute y-coordinate value in the positive direction.
+            Either this subfield or `"south"` subfield must be present.
+        south:
+          type: integer
+          description: |
+            Absolute y-coordinate value in the negative direction.
+            Either this subfield or `"north"` subfield must be present.
+        east:
+          type: integer
+          description: |
+            Absolute x-coordinate value in the positive direction.
+            Either this subfield or `"west"` subfield must be present.
+        west:
+          type: integer
+          description: |
+            Absolute x-coordinate value in the negative direction.
+            Either this subfield or `"east"` subfield must be present.
+    robotPosition:
+      type: string
+      pattern: ^robot#([1-9][0-9]*)$
+      description: |
+        The most recently reported position of the robot with the given ID.
+        The string has the pattern `robot#<id>`.
+    robotId:
+      type: integer
+      minimum: 1
+      maximum: 999999
+    objectDna:
+      type: string
+      pattern: ^[a-z]{16}$
+paths:
+  /distance:
+    post:
+      summary: Measuring Distance
+      operationId: distance
+      description: |
+        Robots or human operators use this endpoint to compute the distance
+        between two given positions.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - first_pos
+                - second_pos
+              properties:
+                first_pos:
+                  description: |
+                    Position of the first point
+
+                    _Added in version 1.1.0:_&nbsp; Allow positions by robot ID <br>
+                    _Added in version 1.7.0:_&nbsp; Allow positions in legacy format
+                  anyOf:
+                    - $ref: '#/components/schemas/position'
+                    - $ref: '#/components/schemas/robotPosition'
+                    - $ref: '#/components/schemas/legacyPosition'
+                second_pos:
+                  description: |
+                    Position of the second point
+
+                    _Added in version 1.1.0:_&nbsp; Allow positions by robot ID <br>
+                    _Added in version 1.7.0:_&nbsp; Allow positions in legacy format
+                  anyOf:
+                    - $ref: '#/components/schemas/position'
+                    - $ref: '#/components/schemas/robotPosition'
+                    - $ref: '#/components/schemas/legacyPosition'
+                metric:
+                  type: string
+                  enum: ["euclidean", "manhattan"]
+                  default: "euclidean"
+                  description: |
+                    Metric to measure distance between two points
+
+                    _New in version 1.2.0_
+            examples:
+              first_example:
+                summary: First example
+                value:
+                  first_pos:
+                    x: 3
+                    y: -2
+                  second_pos:
+                    x: -4
+                    y: 9
+              second_example:
+                summary: Second example
+                description: Robot ID is used to identify one of the input positions
+                value:
+                  first_pos:
+                    x: 3
+                    y: -2
+                  second_pos: "robot#37"
+              third_example:
+                summary: Third example
+                description: Input positions in legacy format X
+                value:
+                  first_pos:
+                    south: 2
+                    east: 3
+                  second_pos:
+                    north: 9
+                    west: 4
+      responses:
+        "200":
+          description: Distance is computed
+          content:
+            application/json:
+              schema:
+                type: object
+                required:
+                  - distance
+                properties:
+                  distance:
+                    type: number
+                    description: |
+                      Distance value between two input points
+                      (with error not exceeding 0.001).
+              examples:
+                first_example:
+                  summary: First example
+                  value:
+                    distance: 13.038
+                second_example:
+                  summary: Second example
+                  value:
+                    distance: 12.450
+                third_example:
+                  summary: Third example
+                  value:
+                    distance: 13.038
+        "400":
+          description: Request was ill-formed
+        "424":
+          description: Insufficient data to compute the result
+  /robot/{robot_id}/position:
+    put:
+      summary: Updating the current position of a robot
+      operationId: setRobotPosition
+      description: |
+        Each robot uses this endpoint to report its current position.
+
+        _New in version 1.1.0_
+      parameters:
+        - in: path
+          name: robot_id
+          description: Robot’s unique integer ID
+          required: true
+          schema:
+            $ref: '#/components/schemas/robotId'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - position
+              properties:
+                position:
+                  description: |
+                    Current position of the robot
+                    
+                    _Changed in version 1.7.0:_&nbsp; Allow positions in legacy format
+                  anyOf:
+                    - $ref: '#/components/schemas/position'
+                    - $ref: '#/components/schemas/legacyPosition'
+            examples:
+              first_example:
+                summary: First example
+                value:
+                  position:
+                    x: 2
+                    y: -1
+      responses:
+        "204":
+          description: Current position of the robot is updated
+        "400":
+          description: Request was ill-formed
+    get:
+      summary: Retrieving the most recently updated position of a robot
+      operationId: getRobotPosition
+      description: |
+        Robots and human operators use this endpoint to retrieve
+        the most recently updated position of a robot.
+        If the robot has never updated its position,
+        then it should be treated as the unknown (i.e. unrecognizable).
+
+        _New in version 1.1.0_
+      parameters:
+        - in: path
+          name: robot_id
+          description: Robot’s unique integer ID
+          required: true
+          schema:
+            $ref: '#/components/schemas/robotId'
+      responses:
+        "200":
+          description: Position of the robot is retrieved
+          content:
+            application/json:
+              schema:
+                type: object
+                required:
+                  - position
+                properties:
+                  position:
+                    description: Last updated position of the robot
+                    allOf:
+                      - $ref: '#/components/schemas/position'
+              examples:
+                first_example:
+                  summary: First example
+                  value:
+                    position:
+                      x: 2
+                      y: -1
+        "404":
+          description: Unrecognized robot ID
+  /nearest:
+    post:
+      # TODO: do not forget to change this to singular
+      summary: Searching for robots nearest to a given point
+      operationId: nearest
+      description: |
+        Human operators use this endpoint to obtain a list of integer IDs
+        of robots which are top-`k` nearest to the given reference point.
+        If there are less than `k` recognizable robots, return all of them.
+
+        For equidistant robots, robots with smaller integer IDs
+        should be favored or considered first.
+
+        _New in version 1.3.0_
+
+        _Added in version 1.6.0:_&nbsp; The input property `k` is introduced,
+        requiring the output to be the top-`k` nearest robots
+        instead of requiring the top-1 nearest robot.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - ref_position
+              properties:
+                ref_position:
+                  description: The reference position
+                  allOf:
+                    - $ref: '#/components/schemas/position'
+                k:
+                  type: integer
+                  description: |
+                    Parameter indicating the number of robots to search for
+
+                    _New in version 1.6.0_
+                  default: 1
+                  minimum: 1
+            examples:
+              first_example:
+                summary: First example
+                value:
+                  ref_position:
+                    x: 9
+                    y: -7
+              second_example:
+                summary: Second example
+                value:
+                  ref_position:
+                    x: -4
+                    y: 1
+              third_example:
+                summary: Third example
+                value:
+                  ref_position:
+                    x: 9
+                    y: -7
+                  k: 3
+      responses:
+        "200":
+          description: IDs of nearby robots are returned
+          content:
+            application/json:
+              schema:
+                type: object
+                required:
+                  - robot_ids
+                properties:
+                  robot_ids:
+                    type: array
+                    description: |
+                      A list of at most `k` robot IDs (may be empty
+                      if none of the robots have yet has yet to update their positions).
+
+                      This list must be sorted starting from the nearest robot first.
+                      For equidistant robots, robots with smaller integer IDs
+                      should be favored or considered first.
+                    items:
+                      $ref: '#/components/schemas/robotId'
+              examples:
+                first_example:
+                  summary: First example
+                  value:
+                    robot_ids: [3]
+                second_example:
+                  summary: Second example
+                  description: |
+                    Empty list should be returned when none of the robots
+                    have ever reported their positions.
+                  value:
+                    robot_ids: []
+                third_example:
+                  summary: Third example
+                  description: |
+                    The request body specified `k=3` but only 2 robots
+                    have reported their positions so far.
+                  value:
+                    robot_ids: [3, 7]
+        "400":
+          description: Request was ill-formed
+  /alien/{object_dna}/report:
+    post:
+      summary: Reporting the radar scanning of an alien object
+      operationId: reportAlienData
+      description: |
+        A robot uses this endpoint to report the radar scanning of an alien object,
+        consisting of the object DNA string and its distance from the robot
+        (based its most recently updated position).
+
+        If the robot’s position has not yet been recognized,
+        then the radar scanning data it reports becomes meaningless
+        as it is impossible to meaningfully interpret the data.
+        Regardless of this issue, status 200 must be returned.
+
+        _New in version 1.4.0_
+      parameters:
+        - in: path
+          name: object_dna
+          description: Object DNA of the scanned alien object
+          required: true
+          schema:
+            $ref: '#/components/schemas/objectDna'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - robot_id
+                - distance
+              properties:
+                robot_id:
+                  description: Integer ID of the reporting robot
+                  allOf:
+                    - $ref: '#/components/schemas/robotId'
+                distance:
+                  type: number
+                  description: |
+                    The Euclidean distance between the position of the reporting robot
+                    and that of the alien object
+            examples:
+              first_example:
+                summary: First example
+                value:
+                  robot_id: 8
+                  distance: 7.7954
+      responses:
+        "200":
+          description: Object scanning data is recorded
+        "400":
+          description: Request was ill-formed
+  /alien/{object_dna}/position:
+    get:
+      summary: Inferring the position of an alien object
+      operationId: inferAlienPosition
+      description: |
+        Human operators use this endpoint to obtain the inferred position
+        of the alien object based on the data reported by robots.
+
+        _New in version 1.4.0_
+      parameters:
+        - in: path
+          name: object_dna
+          description: Object DNA of the alien object
+          required: true
+          schema:
+            $ref: '#/components/schemas/objectDna'
+      responses:
+        "200":
+          description: Position of the alien object is deduced
+          content:
+            application/json:
+              schema:
+                type: object
+                required:
+                  - position
+                properties:
+                  position:
+                    description: Inferred position of the alien object
+                    allOf:
+                      - $ref: '#/components/schemas/position'
+              examples:
+                first_example:
+                  summary: First example
+                  value:
+                    position:
+                      x: 7
+                      y: -1
+        "424":
+          description: Insufficient data to compute the result
+  /closestpair:
+    get:
+      summary: Finding the smallest distance between any pairs of robots
+      operationId: closestPair
+      description: |
+        Human operators use this endpoint to determine the smallest distance
+        between any pairs of robots based on their most recently updated positions.
+
+        _New in version 1.5.0_
+      responses:
+        "200":
+          description: The distance is computed
+          content:
+            application/json:
+              schema:
+                type: object
+                required:
+                  - distance
+                properties:
+                  distance:
+                    type: number
+                    description: |
+                      The smallest Euclidean distance between any pairs of robots
+                      (with error not exceeding 0.001).
+              examples:
+                first_example:
+                  summary: First example
+                  value:
+                    distance: 20.375
+        "424":
+          description: Insufficient data to compute the result
